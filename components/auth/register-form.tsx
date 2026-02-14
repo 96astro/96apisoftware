@@ -62,7 +62,7 @@ const RegisterForm = () => {
         return;
       }
 
-      toast.success("Account created. Please sign in.");
+      toast.success("Account created. Verify your email, then sign in.");
       router.push("/auth/login");
     } catch (error) {
       toast.error("Something went wrong during registration.");

@@ -3,15 +3,37 @@
 import { Button } from '@/components/ui/button';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { handleChangePassword } from './actions/handleChangePassword';
 
 const ChangePasswordTabContent = () => {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const onSubmit = async (formData: FormData) => {
+        setIsSubmitting(true);
+
+        try {
+            const result = await handleChangePassword(formData);
+
+            if ("error" in result) {
+                toast.error(result.error);
+                return;
+            }
+
+            toast.success("Password updated successfully.");
+        } catch (error) {
+            toast.error("Unable to update password right now.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
-        <div>
+        <form action={onSubmit}>
             {/* New Password Field */}
             <div className="mb-5">
                 <Label htmlFor="new-password" className="inline-block font-semibold text-neutral-600 dark:text-neutral-200 text-sm mb-2">
@@ -19,10 +41,12 @@ const ChangePasswordTabContent = () => {
                 </Label>
                 <div className="relative">
                     <Input
+                        name="password"
                         id="new-password"
                         type={showNewPassword ? "text" : "password"}
                         placeholder="Enter New Password"
                         className="ps-5 pe-12 h-[48px] rounded-lg border border-neutral-300 dark:border-slate-700 focus:border-primary dark:focus:border-primary focus-visible:border-primary !shadow-none !ring-0"
+                        required
                     />
                     <Button
                         type="button"
@@ -41,10 +65,12 @@ const ChangePasswordTabContent = () => {
                 </Label>
                 <div className="relative">
                     <Input
+                        name="confirmPassword"
                         id="confirm-password"
                         type={showConfirmPassword ? "text" : "password"}
                         placeholder="Enter Confirmed Password"
                         className="ps-5 pe-12 h-[48px] rounded-lg border border-neutral-300 dark:border-slate-700 focus:border-primary dark:focus:border-primary focus-visible:border-primary !shadow-none !ring-0"
+                        required
                     />
                     <Button
                         type="button"
@@ -55,7 +81,24 @@ const ChangePasswordTabContent = () => {
                     </Button>
                 </div>
             </div>
-        </div>
+
+            <div className="flex items-center justify-end gap-3">
+                <Button
+                    type="submit"
+                    className="h-[48px] text-base px-10 py-3 rounded-lg"
+                    disabled={isSubmitting}
+                >
+                    {isSubmitting ? (
+                        <>
+                            <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                            Updating...
+                        </>
+                    ) : (
+                        "Update Password"
+                    )}
+                </Button>
+            </div>
+        </form>
     );
 };
 

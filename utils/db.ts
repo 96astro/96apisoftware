@@ -23,7 +23,7 @@ export async function getUserFromDb(email: string, password: string): Promise<Sa
 
   const isValid = await bcrypt.compare(password, user.password);
 
-  if (!isValid || !user.email) {
+  if (!isValid || !user.email || !user.emailVerified) {
     return null;
   }
 
@@ -32,6 +32,56 @@ export async function getUserFromDb(email: string, password: string): Promise<Sa
     email: user.email,
     name: user.name,
   };
+}
+
+export async function createEmailVerificationToken(email: string) {
+  const user = await getUserByEmail(email);
+
+  if (!user?.email) {
+    return null;
+  }
+
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
+  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+  await prisma.verificationToken.deleteMany({
+    where: { identifier: user.email },
+  });
+
+  await prisma.verificationToken.create({
+    data: {
+      identifier: user.email,
+      token: hashedToken,
+      expires,
+    },
+  });
+
+  return rawToken;
+}
+
+export async function verifyEmailWithToken(rawToken: string) {
+  const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
+
+  const token = await prisma.verificationToken.findUnique({
+    where: { token: hashedToken },
+  });
+
+  if (!token || token.expires <= new Date()) {
+    return false;
+  }
+
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { email: token.identifier },
+      data: { emailVerified: new Date() },
+    }),
+    prisma.verificationToken.delete({
+      where: { token: hashedToken },
+    }),
+  ]);
+
+  return true;
 }
 
 export async function createUser(input: {

@@ -1,7 +1,8 @@
 "use server";
 
+import { sendVerificationEmail } from "@/lib/mailer";
 import { registerSchema } from "@/lib/zod";
-import { createUser } from "@/utils/db";
+import { createEmailVerificationToken, createUser } from "@/utils/db";
 
 export async function registerUser(formData: FormData): Promise<
   | { success: true }
@@ -42,6 +43,23 @@ export async function registerUser(formData: FormData): Promise<
     if ("error" in created) {
       return { error: created.error };
     }
+
+    const verificationToken = await createEmailVerificationToken(result.data.email);
+
+    if (!verificationToken) {
+      return { error: "Unable to create email verification token." };
+    }
+
+    const appUrl =
+      process.env.APP_URL ||
+      process.env.NEXTAUTH_URL ||
+      "http://localhost:3000";
+    const verifyUrl = `${appUrl}/api/auth/verify-email?token=${encodeURIComponent(verificationToken)}`;
+
+    await sendVerificationEmail({
+      to: result.data.email,
+      verifyUrl,
+    });
 
     return { success: true };
   } catch (error) {

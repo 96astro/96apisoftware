@@ -2,10 +2,13 @@ import ChangePasswordTabContent from "@/app/(dashboard)/view-profile/components/
 import EditProfileTabContent from "@/app/(dashboard)/view-profile/components/edit-profile-tab-content";
 import NotificationPasswordTabContent from "@/app/(dashboard)/view-profile/components/notification-password-tab-content";
 import ViewProfileSidebar from "@/app/(dashboard)/view-profile/components/view-profile-sidebar";
+import { auth } from "@/auth";
 import DashboardBreadcrumb from "@/components/layout/dashboard-breadcrumb";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { prisma } from "@/lib/prisma";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 const metadata: Metadata = {
     title: "View Profile & User Details | WowDash Admin Dashboard",
@@ -13,14 +16,43 @@ const metadata: Metadata = {
         "Access detailed user profiles and personal information in the WowDash Admin Dashboard built with Next.js and Tailwind CSS.",
 };
 
-const ViewProfile = () => {
+const ViewProfile = async () => {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+        redirect("/auth/login");
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: {
+            name: true,
+            email: true,
+            phone: true,
+            department: true,
+            designation: true,
+            language: true,
+            bio: true,
+        },
+    });
+
+    const profile = {
+        name: user?.name ?? "",
+        email: user?.email ?? "",
+        phone: user?.phone ?? "",
+        department: user?.department ?? "",
+        designation: user?.designation ?? "",
+        language: user?.language ?? "",
+        bio: user?.bio ?? "",
+    };
+
     return (
         <>
             <DashboardBreadcrumb title="View Profile" text="View Profile" />
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div className="col-span-12 lg:col-span-4">
-                    <ViewProfileSidebar />
+                    <ViewProfileSidebar profile={profile} />
                 </div>
 
                 <div className="col-span-12 lg:col-span-8">
@@ -40,7 +72,7 @@ const ViewProfile = () => {
                                 </TabsList>
 
                                 <TabsContent value="editProfile">
-                                    <EditProfileTabContent />
+                                    <EditProfileTabContent profile={profile} />
                                 </TabsContent>
                                 <TabsContent value="changePassword">
                                     <ChangePasswordTabContent />

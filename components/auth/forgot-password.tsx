@@ -45,13 +45,8 @@ const ForgotPasswordComponent = () => {
         const result = await handleForgotPasswordAction(formData)
 
         if (result?.success) {
-          toast.success('If your email exists, a reset link has been generated.')
-
-          if (result.resetToken) {
-            router.push(`/auth/create-password?token=${encodeURIComponent(result.resetToken)}`)
-          } else {
-            router.push('/auth/login')
-          }
+          toast.success('If your email exists, a reset link has been sent.')
+          router.push('/auth/login')
         } else {
           toast.error(result?.error ?? 'Please enter a valid email')
         }

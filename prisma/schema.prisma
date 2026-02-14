@@ -15,6 +15,10 @@ model User {
   emailVerified       DateTime?
   image               String?
   phone               String?              @unique
+  department          String?
+  designation         String?
+  language            String?
+  bio                 String?              @db.Text
   password            String?
   accounts            Account[]
   sessions            Session[]
