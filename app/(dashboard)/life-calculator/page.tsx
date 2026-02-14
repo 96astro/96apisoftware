@@ -1,4 +1,5 @@
 import DashboardBreadcrumb from "@/components/layout/dashboard-breadcrumb";
+import LifeCalculatorForm from "@/app/(dashboard)/life-calculator/components/life-calculator-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Metadata } from "next";
 
@@ -17,9 +18,7 @@ const LifeCalculatorPage = () => {
           <CardTitle>Life Calculator</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-neutral-600 dark:text-neutral-300">
-            This page is ready. Add your Life Calculator UI and logic here.
-          </p>
+          <LifeCalculatorForm />
         </CardContent>
       </Card>
     </>

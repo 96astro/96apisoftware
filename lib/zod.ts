@@ -70,3 +70,37 @@ export const formSchema = z.object({
 });
 
 export type FormSchemaType = z.infer<typeof formSchema>;
+
+export const lifeCalculatorSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  gender: z.enum(["male", "female", "other"], {
+    required_error: "Gender is required",
+  }),
+  placeOfBirth: z.string().min(1, "Place of Birth is required"),
+  latitude: z.string().min(1, "Latitude is required"),
+  longitude: z.string().min(1, "Longitude is required"),
+  timezone: z.string().min(1, "Timezone is required"),
+  birthDate: z.string().min(1, "Birth Date is required"),
+  birthTime: z.string().min(1, "Birth Time is required"),
+});
+
+export type LifeCalculatorSchemaType = z.infer<typeof lifeCalculatorSchema>;
+
+export const ayuMilanSchema = z.object({
+  boyName: z.string().min(1, "Boy Name is required"),
+  boyBirthDate: z.string().min(1, "Boy Birth Date is required"),
+  boyBirthTime: z.string().min(1, "Boy Birth Time is required"),
+  boyPlaceOfBirth: z.string().min(1, "Boy Place of Birth is required"),
+  boyLatitude: z.string().min(1, "Boy Latitude is required"),
+  boyLongitude: z.string().min(1, "Boy Longitude is required"),
+  boyTimezone: z.string().min(1, "Boy Timezone is required"),
+  girlName: z.string().min(1, "Girl Name is required"),
+  girlBirthDate: z.string().min(1, "Girl Birth Date is required"),
+  girlBirthTime: z.string().min(1, "Girl Birth Time is required"),
+  girlPlaceOfBirth: z.string().min(1, "Girl Place of Birth is required"),
+  girlLatitude: z.string().min(1, "Girl Latitude is required"),
+  girlLongitude: z.string().min(1, "Girl Longitude is required"),
+  girlTimezone: z.string().min(1, "Girl Timezone is required"),
+});
+
+export type AyuMilanSchemaType = z.infer<typeof ayuMilanSchema>;
