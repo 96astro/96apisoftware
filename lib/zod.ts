@@ -27,6 +27,14 @@ export const registerSchema = loginSchema.extend({
   username: z.string().min(2, {
     message: "Username must be at least 2 characters.",
   }),
+  name: z.string().min(2, {
+    message: "Name must be at least 2 characters.",
+  }),
+  phone: z
+    .string()
+    .min(10, { message: "Phone number must be at least 10 digits." })
+    .max(20, { message: "Phone number is too long." })
+    .regex(/^[0-9+()\-\s]+$/, { message: "Invalid phone number format." }),
   acceptTerms: z.literal(true, {
     errorMap: () => ({ message: "You must accept the terms and conditions" }),
   }),

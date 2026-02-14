@@ -1,18 +1,23 @@
 'use server'
 
+import { loginSchema } from "@/lib/zod"
+import { getUserFromDb } from "@/utils/db"
+
 export const handleLoginAction = async (formData: FormData) => {
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
+  const parsed = loginSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  })
 
-  if (!email || !password) {
-    return { error: 'Email and password are required.' }
+  if (!parsed.success) {
+    return { error: "Please enter a valid email and password." }
   }
 
-  // (Optional) Validate credentials format
-  if (!email.includes('@')) {
-    return { error: 'Invalid email format.' }
+  const user = await getUserFromDb(parsed.data.email, parsed.data.password)
+
+  if (!user) {
+    return { error: "Invalid email or password." }
   }
 
-  // You can optionally log or validate against DB here
   return { success: true }
 }

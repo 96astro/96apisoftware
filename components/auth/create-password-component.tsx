@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -27,6 +27,8 @@ const CreatePasswordComponent = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") ?? "";
 
   const form = useForm<z.infer<typeof createPasswordSchema>>({
     resolver: zodResolver(createPasswordSchema),
@@ -40,14 +42,33 @@ const CreatePasswordComponent = () => {
     <>
       <Form {...form}>
         <form
-          action={handleResetPassword}
           onSubmit={form.handleSubmit((values) => {
-            startTransition(() => {
-              toast.success("Password Reset successful!");
+            startTransition(async () => {
+              try {
+                const formData = new FormData();
+                formData.append("password", values.password);
+                formData.append("confirmPassword", values.confirmPassword);
+                formData.append("acceptTerms", values.acceptTerms ? "on" : "off");
+                formData.append("token", token);
+
+                const result = await handleResetPassword(formData);
+
+                if ("error" in result) {
+                  toast.error(result.error ?? "Unable to reset password right now.");
+                  return;
+                }
+
+                toast.success("Password reset successful.");
+                router.push("/auth/login");
+              } catch (error) {
+                toast.error("Unable to reset password right now.");
+              }
             });
           })}
           className="space-y-5"
         >
+          <input type="hidden" name="token" value={token} />
+
           {/* Password */}
           <FormField
             control={form.control}
@@ -129,7 +150,6 @@ const CreatePasswordComponent = () => {
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      name="acceptTerms"
                       id="acceptTerms"
                       className="border border-neutral-500"
                     />

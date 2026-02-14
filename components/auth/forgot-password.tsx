@@ -34,7 +34,7 @@ const ForgotPasswordComponent = () => {
     },
   })
 
-  const onSubmit = (values: z.infer<typeof forgotPasswordSchema>) => {
+  const onSubmit = () => {
     setLoading(true)
 
     startTransition(async () => {
@@ -45,10 +45,15 @@ const ForgotPasswordComponent = () => {
         const result = await handleForgotPasswordAction(formData)
 
         if (result?.success) {
-          toast.success('Password Reset code has been sent to your email')
-          router.push('/auth/create-password')
+          toast.success('If your email exists, a reset link has been generated.')
+
+          if (result.resetToken) {
+            router.push(`/auth/create-password?token=${encodeURIComponent(result.resetToken)}`)
+          } else {
+            router.push('/auth/login')
+          }
         } else {
-          toast.error('Please enter a valid email')
+          toast.error(result?.error ?? 'Please enter a valid email')
         }
       } catch (error) {
         console.error('Forgot password error:', error)

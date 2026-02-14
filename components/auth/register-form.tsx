@@ -13,14 +13,15 @@ import { Input } from "@/components/ui/input";
 import { useLoading } from "@/contexts/LoadingContext";
 import { registerSchema } from "@/lib/zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, Loader2, Lock, Mail, UserRound } from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, Mail, Phone, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
-import SocialLogin from "./social-login";
+// import SocialLogin from "./social-login";
+import { registerUser } from "./actions/register";
 
 const RegisterForm = () => {
   const router = useRouter();
@@ -32,7 +33,9 @@ const RegisterForm = () => {
     resolver: zodResolver(registerSchema),
     defaultValues: {
       username: "",
+      name: "",
       email: "",
+      phone: "",
       password: "",
     },
   });
@@ -41,14 +44,32 @@ const RegisterForm = () => {
     values: z.infer<typeof registerSchema>
   ) => {
     setLoading(true);
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
-    toast.success("User created successfully! Please wait...");
-    router.push("/dashboard");
+    try {
+      const formData = new FormData();
+      formData.append("username", values.username);
+      formData.append("name", values.name);
+      formData.append("email", values.email);
+      formData.append("phone", values.phone);
+      formData.append("password", values.password);
+      formData.append("acceptTerms", values.acceptTerms ? "on" : "off");
 
-    setTimeout(() => {
+      const result = await registerUser(formData);
+
+      if ("error" in result) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success("Account created. Please sign in.");
+      router.push("/auth/login");
+    } catch (error) {
+      toast.error("Something went wrong during registration.");
+    } finally {
       setLoading(false);
-    }, 1000);
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -84,6 +105,28 @@ const RegisterForm = () => {
           {/* Email Field */}
           <FormField
             control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <div className="relative">
+                    <UserRound className="absolute start-5 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-700 dark:text-neutral-200" />
+                    <Input
+                      {...field}
+                      type="text"
+                      placeholder="Name"
+                      className="ps-13 pe-12 h-14 rounded-xl bg-neutral-100 dark:bg-slate-800 border border-neutral-300 dark:border-slate-700 focus:border-primary dark:focus:border-primary focus-visible:border-primary !shadow-none !ring-0"
+                      disabled={loading}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="email"
             render={({ field }) => (
               <FormItem>
@@ -94,6 +137,28 @@ const RegisterForm = () => {
                       {...field}
                       type="email"
                       placeholder="Email"
+                      className="ps-13 pe-12 h-14 rounded-xl bg-neutral-100 dark:bg-slate-800 border border-neutral-300 dark:border-slate-700 focus:border-primary dark:focus:border-primary focus-visible:border-primary !shadow-none !ring-0"
+                      disabled={loading}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <div className="relative">
+                    <Phone className="absolute start-5 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-700 dark:text-neutral-200" />
+                    <Input
+                      {...field}
+                      type="tel"
+                      placeholder="Phone Number"
                       className="ps-13 pe-12 h-14 rounded-xl bg-neutral-100 dark:bg-slate-800 border border-neutral-300 dark:border-slate-700 focus:border-primary dark:focus:border-primary focus-visible:border-primary !shadow-none !ring-0"
                       disabled={loading}
                     />
@@ -194,14 +259,14 @@ const RegisterForm = () => {
       </Form>
 
       {/* Divider */}
-      <div className="mt-8 relative text-center before:absolute before:w-full before:h-px before:bg-neutral-300 dark:before:bg-slate-600 before:top-1/2 before:left-0">
+      {/* <div className="mt-8 relative text-center before:absolute before:w-full before:h-px before:bg-neutral-300 dark:before:bg-slate-600 before:top-1/2 before:left-0">
         <span className="relative z-10 px-4 bg-white dark:bg-slate-900 text-base">
           Or sign in with
         </span>
-      </div>
+      </div> */}
 
       {/* Social Login */}
-      <SocialLogin />
+      {/* <SocialLogin /> */}
 
       {/* Signup Prompt */}
       <div className="mt-8 text-center text-sm">

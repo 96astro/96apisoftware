@@ -1,6 +1,7 @@
 "use server";
 
 import { registerSchema } from "@/lib/zod";
+import { createUser } from "@/utils/db";
 
 export async function registerUser(formData: FormData): Promise<
   | { success: true }
@@ -8,13 +9,17 @@ export async function registerUser(formData: FormData): Promise<
 > {
   try {
     const username = formData.get("username")?.toString() ?? "";
+    const name = formData.get("name")?.toString() ?? "";
     const email = formData.get("email")?.toString() ?? "";
+    const phone = formData.get("phone")?.toString() ?? "";
     const password = formData.get("password")?.toString() ?? "";
     const acceptTerms = formData.get("acceptTerms") === "on";
 
     const result = registerSchema.safeParse({
       username,
+      name,
       email,
+      phone,
       password,
       acceptTerms,
     });
@@ -26,7 +31,17 @@ export async function registerUser(formData: FormData): Promise<
       return { error: `Validation error: ${errorMessages}` };
     }
 
-    await new Promise((res) => setTimeout(res, 1000));
+    const created = await createUser({
+      username: result.data.username,
+      name: result.data.name,
+      email: result.data.email,
+      phone: result.data.phone,
+      password: result.data.password,
+    });
+
+    if ("error" in created) {
+      return { error: created.error };
+    }
 
     return { success: true };
   } catch (error) {

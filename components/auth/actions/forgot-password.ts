@@ -1,7 +1,7 @@
 'use server'
 
-import { z } from 'zod'
 import { forgotPasswordSchema } from '@/lib/zod'
+import { createPasswordResetToken } from '@/utils/db'
 
 export async function handleForgotPasswordAction(formData: FormData) {
   const email = formData.get('email')
@@ -10,13 +10,15 @@ export async function handleForgotPasswordAction(formData: FormData) {
   if (!parsed.success) {
     return {
       success: false,
-      error: parsed.error.flatten().fieldErrors,
+      error: 'Please provide a valid email address.',
     }
   }
 
-  console.log(`Password reset email sent to ${parsed.data.email}`)
+  // In production this token should be emailed to the user.
+  const resetToken = await createPasswordResetToken(parsed.data.email)
 
   return {
     success: true,
+    resetToken,
   }
 }

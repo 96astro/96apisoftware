@@ -21,7 +21,7 @@ import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { z } from 'zod'
 import { handleLoginAction } from './actions/login'
-import SocialLogin from './social-login'
+// import SocialLogin from './social-login'
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -177,14 +177,14 @@ const LoginForm = () => {
       </Form>
 
       {/* Divider */}
-      <div className="mt-8 relative text-center before:absolute before:w-full before:h-px before:bg-neutral-300 dark:before:bg-slate-600 before:top-1/2 before:left-0">
+      {/* <div className="mt-8 relative text-center before:absolute before:w-full before:h-px before:bg-neutral-300 dark:before:bg-slate-600 before:top-1/2 before:left-0">
         <span className="relative z-10 px-4 bg-white dark:bg-slate-900 text-base">
           Or sign in with
         </span>
-      </div>
+      </div> */}
 
       {/* Social Login */}
-      <SocialLogin />
+      {/* <SocialLogin /> */}
 
       {/* Signup Prompt */}
       <div className="mt-8 text-center text-sm">
