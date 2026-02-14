@@ -2,12 +2,14 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarDays, Clock3 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
 import PlaceAutocompleteInput from "@/components/shared/place-autocomplete-input";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -16,11 +18,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { AyuMilanSchemaType, ayuMilanSchema } from "@/lib/zod";
 
 const req = <span className="text-red-600">*</span>;
 
 const AyuMilanForm = () => {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const form = useForm<AyuMilanSchemaType>({
     resolver: zodResolver(ayuMilanSchema),
     defaultValues: {
@@ -49,9 +55,36 @@ const AyuMilanForm = () => {
     },
   });
 
-  const onSubmit = (values: AyuMilanSchemaType) => {
-    toast.success("Ayu Milan form submitted.");
-    console.log("ayu-milan values", values);
+  const onSubmit = async (values: AyuMilanSchemaType) => {
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/ayu-milan", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      const result = (await response.json()) as {
+        error?: string;
+        reportId?: string;
+      };
+
+      if (!response.ok || !result.reportId) {
+        toast.error(result.error || "Failed to generate Ayu Milan report.");
+        return;
+      }
+
+      toast.success("Ayu Milan report generated successfully.");
+      router.push(`/ayu-milan/reports/${result.reportId}`);
+      router.refresh();
+    } catch {
+      toast.error("Something went wrong while generating Ayu Milan report.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const boyLatitudeDeg = form.watch("boyLatitudeDeg");
@@ -73,11 +106,9 @@ const AyuMilanForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <h5 className="text-center font-semibold text-neutral-900 dark:text-white">
-          ENTER DETAILS
-        </h5>
+        <h5 className="text-center font-semibold text-neutral-900 dark:text-white">ENTER DETAILS</h5>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="space-y-5">
             <h4 className="text-center text-primary font-semibold">Enter Boy&apos;s details</h4>
 
@@ -104,7 +135,7 @@ const AyuMilanForm = () => {
                   <FormControl>
                     <div className="relative">
                       <Input {...field} type="date" className="pe-11" />
-                      <CalendarDays className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-700 dark:text-neutral-200 pointer-events-none" />
+                      <CalendarDays className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-700 dark:text-neutral-200" />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -121,7 +152,7 @@ const AyuMilanForm = () => {
                   <FormControl>
                     <div className="relative">
                       <Input {...field} type="time" step={1} className="pe-11" />
-                      <Clock3 className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-700 dark:text-neutral-200 pointer-events-none" />
+                      <Clock3 className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-700 dark:text-neutral-200" />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -156,12 +187,13 @@ const AyuMilanForm = () => {
                 </FormItem>
               )}
             />
+
             <div className="text-base text-neutral-800 dark:text-neutral-100">
               <p>
-                Latitude: {boyLatitudeDeg || "--"}° {boyLatitudeMin || "--"}&apos; {boyLatitudeDir || "-"}
+                Latitude: {boyLatitudeDeg || "--"} deg {boyLatitudeMin || "--"}&apos; {boyLatitudeDir || "-"}
               </p>
               <p>
-                Longitude: {boyLongitudeDeg || "--"}° {boyLongitudeMin || "--"}&apos; {boyLongitudeDir || "-"}
+                Longitude: {boyLongitudeDeg || "--"} deg {boyLongitudeMin || "--"}&apos; {boyLongitudeDir || "-"}
               </p>
               <p>
                 Timezone: UTC{boyTimezoneOffset ? (Number(boyTimezoneOffset) >= 0 ? "+" : "") + boyTimezoneOffset : "--"}
@@ -195,7 +227,7 @@ const AyuMilanForm = () => {
                   <FormControl>
                     <div className="relative">
                       <Input {...field} type="date" className="pe-11" />
-                      <CalendarDays className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-700 dark:text-neutral-200 pointer-events-none" />
+                      <CalendarDays className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-700 dark:text-neutral-200" />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -212,7 +244,7 @@ const AyuMilanForm = () => {
                   <FormControl>
                     <div className="relative">
                       <Input {...field} type="time" step={1} className="pe-11" />
-                      <Clock3 className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-700 dark:text-neutral-200 pointer-events-none" />
+                      <Clock3 className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-700 dark:text-neutral-200" />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -247,12 +279,13 @@ const AyuMilanForm = () => {
                 </FormItem>
               )}
             />
+
             <div className="text-base text-neutral-800 dark:text-neutral-100">
               <p>
-                Latitude: {girlLatitudeDeg || "--"}° {girlLatitudeMin || "--"}&apos; {girlLatitudeDir || "-"}
+                Latitude: {girlLatitudeDeg || "--"} deg {girlLatitudeMin || "--"}&apos; {girlLatitudeDir || "-"}
               </p>
               <p>
-                Longitude: {girlLongitudeDeg || "--"}° {girlLongitudeMin || "--"}&apos; {girlLongitudeDir || "-"}
+                Longitude: {girlLongitudeDeg || "--"} deg {girlLongitudeMin || "--"}&apos; {girlLongitudeDir || "-"}
               </p>
               <p>
                 Timezone: UTC{girlTimezoneOffset ? (Number(girlTimezoneOffset) >= 0 ? "+" : "") + girlTimezoneOffset : "--"}
@@ -261,9 +294,12 @@ const AyuMilanForm = () => {
           </div>
         </div>
 
-        <div className="flex justify-center pt-2">
-          <Button type="submit" className="h-11 px-10">
-            Submit
+        <div className="flex flex-wrap justify-center gap-3 pt-2">
+          <Button type="submit" className="h-11 px-10" disabled={isSubmitting}>
+            {isSubmitting ? "Submitting..." : "Submit"}
+          </Button>
+          <Button type="button" variant="outline" asChild>
+            <Link href="/ayu-milan/reports">View Reports</Link>
           </Button>
         </div>
       </form>

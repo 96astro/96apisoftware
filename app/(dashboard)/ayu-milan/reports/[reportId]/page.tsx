@@ -19,15 +19,15 @@ import { notFound, redirect } from "next/navigation";
 import JsonViewer from "./components/json-viewer";
 
 export const metadata: Metadata = {
-  title: "Life Calculator Report | WowDash Admin Dashboard",
-  description: "Life Calculator detailed report.",
+  title: "Ayu Milan Report | WowDash Admin Dashboard",
+  description: "Ayu Milan detailed report.",
 };
 
 type PageProps = {
   params: Promise<{ reportId: string }>;
 };
 
-const LifeCalculatorReportPage = async ({ params }: PageProps) => {
+const AyuMilanReportPage = async ({ params }: PageProps) => {
   const { reportId: reportIdParam } = await params;
   const reportId = Number(reportIdParam);
   if (Number.isNaN(reportId)) {
@@ -39,11 +39,8 @@ const LifeCalculatorReportPage = async ({ params }: PageProps) => {
     redirect("/auth/login");
   }
 
-  const report = await prisma.lifeCalculatorReport.findFirst({
-    where: {
-      id: reportId,
-      userId: session.user.id,
-    },
+  const report = await prisma.ayuMilanReport.findFirst({
+    where: { id: reportId, userId: session.user.id },
     include: {
       responseChunks: {
         orderBy: { chunkIndex: "asc" },
@@ -58,13 +55,17 @@ const LifeCalculatorReportPage = async ({ params }: PageProps) => {
 
   let responseData: unknown = report.responseJson;
   try {
-    const rawText = report.responseChunks.length
+    const rawOrCompressed = report.responseChunks.length
       ? joinChunks(report.responseChunks.map((chunk) => chunk.data))
       : report.responseRaw;
+    const rawText = rawOrCompressed;
     responseData = rawText ? JSON.parse(rawText) : null;
   } catch {
     try {
-      const fallback = decompressFromBase64(report.responseRaw);
+      const rawOrCompressed = report.responseChunks.length
+        ? joinChunks(report.responseChunks.map((chunk) => chunk.data))
+        : report.responseRaw;
+      const fallback = decompressFromBase64(rawOrCompressed);
       responseData = fallback ? JSON.parse(fallback) : report.responseJson;
     } catch {
       responseData = report.responseJson;
@@ -73,21 +74,21 @@ const LifeCalculatorReportPage = async ({ params }: PageProps) => {
 
   return (
     <>
-      <DashboardBreadcrumb title="Life Calculator Report" text="Life Calculator Report" />
+      <DashboardBreadcrumb title="Ayu Milan Report" text="Ayu Milan Report" />
 
       <div className="mb-6 flex flex-wrap gap-3">
         <Button asChild variant="outline">
-          <Link href="/life-calculator/reports">Back to Reports</Link>
+          <Link href="/ayu-milan/reports">Back to Reports</Link>
         </Button>
         <Button asChild>
-          <Link href="/life-calculator">New Report</Link>
+          <Link href="/ayu-milan">New Report</Link>
         </Button>
       </div>
 
       <div className="space-y-6">
         <Card className="card">
           <CardHeader>
-            <CardTitle>Astro Data Overview</CardTitle>
+            <CardTitle>Ayu Milan Overview</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -101,34 +102,22 @@ const LifeCalculatorReportPage = async ({ params }: PageProps) => {
               </TableHeader>
               <TableBody>
                 <TableRow>
-                  <TableCell className="font-medium">Name</TableCell>
-                  <TableCell>{report.name}</TableCell>
-                  <TableCell className="font-medium">Gender</TableCell>
-                  <TableCell className="capitalize">{report.gender}</TableCell>
+                  <TableCell className="font-medium">Boy Name</TableCell>
+                  <TableCell>{report.boyName}</TableCell>
+                  <TableCell className="font-medium">Girl Name</TableCell>
+                  <TableCell>{report.girlName}</TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className="font-medium">Place of Birth</TableCell>
-                  <TableCell>{report.placeOfBirth}</TableCell>
-                  <TableCell className="font-medium">Birth Date</TableCell>
-                  <TableCell>{format(report.birthDate, "dd MMM yyyy")}</TableCell>
+                  <TableCell className="font-medium">Boy DOB / Time</TableCell>
+                  <TableCell>{format(report.boyBirthDate, "dd MMM yyyy")} {report.boyBirthTime}</TableCell>
+                  <TableCell className="font-medium">Girl DOB / Time</TableCell>
+                  <TableCell>{format(report.girlBirthDate, "dd MMM yyyy")} {report.girlBirthTime}</TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className="font-medium">Birth Time</TableCell>
-                  <TableCell>{report.birthTime}</TableCell>
-                  <TableCell className="font-medium">Timezone</TableCell>
-                  <TableCell>UTC{report.timezone >= 0 ? "+" : ""}{report.timezone}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Latitude</TableCell>
-                  <TableCell>{report.latitudeDeg} deg {report.latitudeMin} min {report.latitudeDir}</TableCell>
-                  <TableCell className="font-medium">Longitude</TableCell>
-                  <TableCell>{report.longitudeDeg} deg {report.longitudeMin} min {report.longitudeDir}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Chart Style</TableCell>
-                  <TableCell>{report.chartStyle}</TableCell>
-                  <TableCell className="font-medium">KP Horary Number</TableCell>
-                  <TableCell>{report.kpHoraryNumber}</TableCell>
+                  <TableCell className="font-medium">Boy Place</TableCell>
+                  <TableCell>{report.boyPlaceOfBirth}</TableCell>
+                  <TableCell className="font-medium">Girl Place</TableCell>
+                  <TableCell>{report.girlPlaceOfBirth}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">API Status</TableCell>
@@ -154,4 +143,4 @@ const LifeCalculatorReportPage = async ({ params }: PageProps) => {
   );
 };
 
-export default LifeCalculatorReportPage;
+export default AyuMilanReportPage;

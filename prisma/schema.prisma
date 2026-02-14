@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id                  String               @id @default(cuid())
+  id                  Int                  @id @default(autoincrement())
   name                String?
   username            String?              @unique
   email               String?              @unique
@@ -24,12 +24,13 @@ model User {
   sessions            Session[]
   passwordResetTokens PasswordResetToken[]
   lifeCalculatorReports LifeCalculatorReport[]
+  ayuMilanReports     AyuMilanReport[]
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
 }
 
 model Account {
-  userId            String
+  userId            Int
   type              String
   provider          String
   providerAccountId String
@@ -49,7 +50,7 @@ model Account {
 
 model Session {
   sessionToken String   @unique
-  userId       String
+  userId       Int
   expires      DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -66,9 +67,9 @@ model VerificationToken {
 }
 
 model PasswordResetToken {
-  id        String    @id @default(cuid())
+  id        Int       @id @default(autoincrement())
   token     String    @unique
-  userId    String
+  userId    Int
   expires   DateTime
   usedAt    DateTime?
   createdAt DateTime  @default(now())
@@ -80,8 +81,8 @@ model PasswordResetToken {
 }
 
 model LifeCalculatorReport {
-  id              String   @id @default(cuid())
-  userId          String
+  id              Int      @id @default(autoincrement())
+  userId          Int
   name            String
   gender          String
   placeOfBirth    String
@@ -105,6 +106,7 @@ model LifeCalculatorReport {
   requestPayload  Json
   responseJson    Json?
   responseRaw     String   @db.LongText
+  responseChunks  LifeCalculatorResponseChunk[]
   apiJobId        String?
   apiStatus       String?
   createdAt       DateTime @default(now())
@@ -113,4 +115,69 @@ model LifeCalculatorReport {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
+}
+
+model LifeCalculatorResponseChunk {
+  id         Int      @id @default(autoincrement())
+  reportId   Int
+  chunkIndex Int
+  data       String   @db.LongText
+  createdAt  DateTime @default(now())
+
+  report LifeCalculatorReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@unique([reportId, chunkIndex])
+  @@index([reportId])
+}
+
+model AyuMilanReport {
+  id                Int      @id @default(autoincrement())
+  userId            Int
+  boyName           String
+  boyBirthDate      DateTime
+  boyBirthTime      String
+  boyPlaceOfBirth   String
+  boyLatitudeDeg    Int
+  boyLatitudeMin    Int
+  boyLatitudeDir    String   @db.VarChar(1)
+  boyLongitudeDeg   Int
+  boyLongitudeMin   Int
+  boyLongitudeDir   String   @db.VarChar(1)
+  boyTimezone       Float
+  girlName          String
+  girlBirthDate     DateTime
+  girlBirthTime     String
+  girlPlaceOfBirth  String
+  girlLatitudeDeg   Int
+  girlLatitudeMin   Int
+  girlLatitudeDir   String   @db.VarChar(1)
+  girlLongitudeDeg  Int
+  girlLongitudeMin  Int
+  girlLongitudeDir  String   @db.VarChar(1)
+  girlTimezone      Float
+  requestPayload    Json
+  responseJson      Json?
+  responseRaw       String   @db.LongText
+  responseChunks    AyuMilanResponseChunk[]
+  apiJobId          String?
+  apiStatus         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model AyuMilanResponseChunk {
+  id         Int      @id @default(autoincrement())
+  reportId   Int
+  chunkIndex Int
+  data       String   @db.LongText
+  createdAt  DateTime @default(now())
+
+  report AyuMilanReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@unique([reportId, chunkIndex])
+  @@index([reportId])
 }

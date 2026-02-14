@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
 type SafeUser = {
-  id: string;
+  id: number;
   email: string;
   name: string | null;
 };
@@ -90,7 +90,7 @@ export async function createUser(input: {
   email: string;
   phone: string;
   password: string;
-}): Promise<{ user: { id: string } } | { error: string }> {
+}): Promise<{ user: { id: number } } | { error: string }> {
   const [emailUser, usernameUser, phoneUser] = await Promise.all([
     getUserByEmail(input.email),
     prisma.user.findUnique({ where: { username: input.username } }),
