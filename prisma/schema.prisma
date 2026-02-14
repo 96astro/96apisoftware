@@ -23,6 +23,7 @@ model User {
   accounts            Account[]
   sessions            Session[]
   passwordResetTokens PasswordResetToken[]
+  lifeCalculatorReports LifeCalculatorReport[]
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
 }
@@ -76,4 +77,40 @@ model PasswordResetToken {
 
   @@index([userId])
   @@index([expires])
+}
+
+model LifeCalculatorReport {
+  id              String   @id @default(cuid())
+  userId          String
+  name            String
+  gender          String
+  placeOfBirth    String
+  birthDate       DateTime
+  birthTime       String
+  day             Int
+  month           Int
+  year            Int
+  hour            Int
+  minute          Int
+  second          Int
+  longitudeDeg    Int
+  longitudeMin    Int
+  longitudeDir    String   @db.VarChar(1)
+  latitudeDeg     Int
+  latitudeMin     Int
+  latitudeDir     String   @db.VarChar(1)
+  timezone        Float
+  chartStyle      String
+  kpHoraryNumber  Int
+  requestPayload  Json
+  responseJson    Json?
+  responseRaw     String   @db.LongText
+  apiJobId        String?
+  apiStatus       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }
