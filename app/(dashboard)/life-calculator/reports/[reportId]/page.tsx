@@ -58,13 +58,14 @@ const LifeCalculatorReportPage = async ({ params }: PageProps) => {
 
   let responseData: unknown = report.responseJson;
   try {
-    const rawText = report.responseChunks.length
-      ? joinChunks(report.responseChunks.map((chunk) => chunk.data))
-      : report.responseRaw;
+    const rawText = report.responseRaw;
     responseData = rawText ? JSON.parse(rawText) : null;
   } catch {
     try {
-      const fallback = decompressFromBase64(report.responseRaw);
+      const legacyChunkText = report.responseChunks.length
+        ? joinChunks(report.responseChunks.map((chunk) => chunk.data))
+        : report.responseRaw;
+      const fallback = decompressFromBase64(legacyChunkText);
       responseData = fallback ? JSON.parse(fallback) : report.responseJson;
     } catch {
       responseData = report.responseJson;

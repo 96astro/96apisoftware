@@ -1,6 +1,5 @@
 import { auth } from "@/auth";
 import { buildAyuMilanPayload, toBirthDateAtUtcMidnight } from "@/lib/ayu-milan";
-import { splitTextBySize } from "@/lib/compression";
 import { prisma } from "@/lib/prisma";
 import { ayuMilanSchema } from "@/lib/zod";
 import { Prisma } from "@prisma/client";
@@ -91,8 +90,6 @@ export async function POST(request: Request) {
     status: envelope.status ?? null,
     job_id: envelope.job_id ?? null,
   } as Prisma.InputJsonValue;
-  const chunks = splitTextBySize(responseText || JSON.stringify(apiResponseJson ?? null), 250000);
-
   const created = await prisma.$transaction(async (tx) => {
     const report = await tx.ayuMilanReport.create({
       data: {
@@ -121,23 +118,11 @@ export async function POST(request: Request) {
         girlTimezone: apiPayload.girl_data.timezone,
         requestPayload: apiPayload as Prisma.InputJsonValue,
         responseJson: responsePreview,
-        responseRaw: chunks.length === 1 ? chunks[0] : "",
+        responseRaw: responseText || JSON.stringify(apiResponseJson ?? null),
         apiJobId: envelope.job_id ?? null,
         apiStatus: envelope.status ?? null,
       },
     });
-
-    if (chunks.length > 1) {
-      for (let index = 0; index < chunks.length; index += 1) {
-        await tx.ayuMilanResponseChunk.create({
-          data: {
-            reportId: report.id,
-            chunkIndex: index,
-            data: chunks[index],
-          },
-        });
-      }
-    }
 
     return report;
   });

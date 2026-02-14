@@ -1,5 +1,4 @@
 import { auth } from "@/auth";
-import { splitTextBySize } from "@/lib/compression";
 import { buildLifeCalculatorPayload, toBirthDateAtUtcMidnight } from "@/lib/life-calculator";
 import { prisma } from "@/lib/prisma";
 import { lifeCalculatorSchema } from "@/lib/zod";
@@ -88,58 +87,40 @@ export async function POST(request: Request) {
   }
 
   const envelope = (apiResponseJson ?? {}) as ApiEnvelope;
-  const responseChunks = splitTextBySize(responseText || JSON.stringify(apiResponseJson ?? null), 250000);
-
   const responsePreview = {
     status: envelope.status ?? null,
     job_id: envelope.job_id ?? null,
   } as Prisma.InputJsonValue;
 
-  const created = await prisma.$transaction(async (tx) => {
-    const report = await tx.lifeCalculatorReport.create({
-      data: {
-        userId: session.user.id,
-        name: values.name,
-        gender: values.gender,
-        placeOfBirth: values.placeOfBirth,
-        birthDate: toBirthDateAtUtcMidnight(values.birthDate),
-        birthTime: values.birthTime,
-        day: apiPayload.day,
-        month: apiPayload.month,
-        year: apiPayload.year,
-        hour: apiPayload.hour,
-        minute: apiPayload.minute,
-        second: apiPayload.second,
-        longitudeDeg: apiPayload.longitude_deg,
-        longitudeMin: apiPayload.longitude_min,
-        longitudeDir: apiPayload.longitude_dir,
-        latitudeDeg: apiPayload.latitude_deg,
-        latitudeMin: apiPayload.latitude_min,
-        latitudeDir: apiPayload.latitude_dir,
-        timezone: apiPayload.timezone,
-        chartStyle: apiPayload.chart_style,
-        kpHoraryNumber: apiPayload.kp_horary_number,
-        requestPayload: apiPayload as Prisma.InputJsonValue,
-        responseJson: responsePreview,
-        responseRaw: responseChunks.length === 1 ? responseChunks[0] : "",
-        apiJobId: envelope.job_id ?? null,
-        apiStatus: envelope.status ?? null,
-      },
-    });
-
-    if (responseChunks.length > 1) {
-      for (let index = 0; index < responseChunks.length; index += 1) {
-        await tx.lifeCalculatorResponseChunk.create({
-          data: {
-            reportId: report.id,
-            chunkIndex: index,
-            data: responseChunks[index],
-          },
-        });
-      }
-    }
-
-    return report;
+  const created = await prisma.lifeCalculatorReport.create({
+    data: {
+      userId: session.user.id,
+      name: values.name,
+      gender: values.gender,
+      placeOfBirth: values.placeOfBirth,
+      birthDate: toBirthDateAtUtcMidnight(values.birthDate),
+      birthTime: values.birthTime,
+      day: apiPayload.day,
+      month: apiPayload.month,
+      year: apiPayload.year,
+      hour: apiPayload.hour,
+      minute: apiPayload.minute,
+      second: apiPayload.second,
+      longitudeDeg: apiPayload.longitude_deg,
+      longitudeMin: apiPayload.longitude_min,
+      longitudeDir: apiPayload.longitude_dir,
+      latitudeDeg: apiPayload.latitude_deg,
+      latitudeMin: apiPayload.latitude_min,
+      latitudeDir: apiPayload.latitude_dir,
+      timezone: apiPayload.timezone,
+      chartStyle: apiPayload.chart_style,
+      kpHoraryNumber: apiPayload.kp_horary_number,
+      requestPayload: apiPayload as Prisma.InputJsonValue,
+      responseJson: responsePreview,
+      responseRaw: responseText || JSON.stringify(apiResponseJson ?? null),
+      apiJobId: envelope.job_id ?? null,
+      apiStatus: envelope.status ?? null,
+    },
   });
 
   return NextResponse.json(
