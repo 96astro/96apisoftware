@@ -2,13 +2,13 @@ import { auth } from "@/auth";
 import DashboardBreadcrumb from "@/components/layout/dashboard-breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { decompressFromBase64, joinChunks } from "@/lib/compression";
 import { prisma } from "@/lib/prisma";
 import { format } from "date-fns";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import JsonViewer from "./components/json-viewer";
+import LazyResponseViewer from "./components/lazy-response-viewer";
 
 export const metadata: Metadata = {
   title: "Ayu Milan Report | WowDash Admin Dashboard",
@@ -40,32 +40,26 @@ const AyuMilanReportPage = async ({ params }: PageProps) => {
 
   const report = await prisma.ayuMilanReport.findFirst({
     where: { id: reportId, userId: session.user.id },
-    include: {
-      responseChunks: {
-        orderBy: { chunkIndex: "asc" },
-        select: { data: true },
-      },
+    select: {
+      id: true,
+      boyName: true,
+      girlName: true,
+      boyBirthDate: true,
+      boyBirthTime: true,
+      girlBirthDate: true,
+      girlBirthTime: true,
+      boyPlaceOfBirth: true,
+      girlPlaceOfBirth: true,
+      apiStatus: true,
+      apiJobId: true,
+      createdAt: true,
+      updatedAt: true,
+      requestPayload: true,
     },
   });
 
   if (!report) {
     notFound();
-  }
-
-  let responseData: unknown = report.responseJson;
-  try {
-    const rawText = report.responseRaw;
-    responseData = rawText ? JSON.parse(rawText) : null;
-  } catch {
-    try {
-      const legacyChunkText = report.responseChunks.length
-        ? joinChunks(report.responseChunks.map((chunk) => chunk.data))
-        : report.responseRaw;
-      const fallback = decompressFromBase64(legacyChunkText);
-      responseData = fallback ? JSON.parse(fallback) : report.responseJson;
-    } catch {
-      responseData = report.responseJson;
-    }
   }
 
   return (
@@ -103,7 +97,7 @@ const AyuMilanReportPage = async ({ params }: PageProps) => {
         </Card>
 
         <JsonViewer title="Request Payload" data={report.requestPayload} />
-        <JsonViewer title="Response Report" data={responseData} />
+        <LazyResponseViewer reportId={report.id} />
       </div>
     </>
   );
