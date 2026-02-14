@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import DashboardBreadcrumb from "@/components/layout/dashboard-breadcrumb";
+import DeleteReportButton from "@/components/reports/delete-report-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -84,9 +85,15 @@ const LifeCalculatorReportsPage = async () => {
                     <TableCell>{report.apiStatus ?? "-"}</TableCell>
                     <TableCell>{format(report.createdAt, "dd MMM yyyy, hh:mm a")}</TableCell>
                     <TableCell className="text-right">
-                      <Button asChild size="sm" variant="outline">
-                        <Link href={`/life-calculator/reports/${report.id}`}>View Report</Link>
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button asChild size="sm" variant="outline">
+                          <Link href={`/life-calculator/reports/${report.id}`}>View Report</Link>
+                        </Button>
+                        <DeleteReportButton
+                          endpoint={`/api/life-calculator/${report.id}`}
+                          confirmText="Delete this Life Calculator report?"
+                        />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

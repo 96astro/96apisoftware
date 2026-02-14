@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { buildAyuMilanPayload, toBirthDateAtUtcMidnight } from "@/lib/ayu-milan";
+import { compressToBase64 } from "@/lib/compression";
 import { prisma } from "@/lib/prisma";
 import { ayuMilanSchema } from "@/lib/zod";
 import { Prisma } from "@prisma/client";
@@ -118,7 +119,7 @@ export async function POST(request: Request) {
         girlTimezone: apiPayload.girl_data.timezone,
         requestPayload: apiPayload as Prisma.InputJsonValue,
         responseJson: responsePreview,
-        responseRaw: responseText || JSON.stringify(apiResponseJson ?? null),
+        responseRaw: compressToBase64(responseText || JSON.stringify(apiResponseJson ?? null)),
         apiJobId: envelope.job_id ?? null,
         apiStatus: envelope.status ?? null,
       },
