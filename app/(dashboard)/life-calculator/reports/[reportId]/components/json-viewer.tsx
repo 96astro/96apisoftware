@@ -1,12 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 type JsonPrimitive = string | number | boolean | null;
 type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
@@ -55,6 +47,24 @@ function primitiveToText(value: JsonPrimitive) {
   return String(value);
 }
 
+function isImageDataUrl(value: JsonPrimitive): value is string {
+  return typeof value === "string" && /^data:image\/[a-zA-Z0-9.+-]+;base64,/.test(value);
+}
+
+function PrimitiveValue({ value }: { value: JsonPrimitive }) {
+  if (isImageDataUrl(value)) {
+    return (
+      <img
+        src={value}
+        alt="API chart"
+        className="max-h-[420px] w-auto max-w-full rounded-md border border-border bg-white p-2"
+      />
+    );
+  }
+
+  return <>{primitiveToText(value)}</>;
+}
+
 function PrimitiveEntriesTable({ value }: { value: JsonObject }) {
   const primitiveEntries = Object.entries(value).filter(([, item]) => isPrimitive(item));
 
@@ -63,22 +73,18 @@ function PrimitiveEntriesTable({ value }: { value: JsonObject }) {
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Field</TableHead>
-          <TableHead>Value</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {primitiveEntries.map(([key, item]) => (
-          <TableRow key={key}>
-            <TableCell className="font-medium">{formatKey(key)}</TableCell>
-            <TableCell>{isPrimitive(item) ? primitiveToText(item) : "-"}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      {primitiveEntries.map(([key, item]) => (
+        <div key={key} className="rounded-md border border-border p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-300">
+            {formatKey(key)}
+          </p>
+          <div className="mt-1 break-words text-sm text-foreground">
+            {isPrimitive(item) ? <PrimitiveValue value={item} /> : "-"}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -95,33 +101,32 @@ function ObjectArrayTable({ rows }: { rows: JsonObject[] }) {
   );
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          {headers.map((header) => (
-            <TableHead key={header}>{formatKey(header)}</TableHead>
-          ))}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {rows.map((row, index) => (
-          <TableRow key={index}>
+    <div className="space-y-3">
+      {rows.map((row, index) => (
+        <div key={index} className="rounded-md border border-border p-3">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-300">
+            Row {index + 1}
+          </p>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {headers.map((header) => {
               const cell = row[header];
               return (
-                <TableCell key={header}>
-                  {cell === undefined
-                    ? "-"
-                    : isPrimitive(cell)
-                    ? primitiveToText(cell)
-                    : JSON.stringify(cell)}
-                </TableCell>
+                <div key={header}>
+                  <p className="text-xs font-medium text-neutral-500 dark:text-neutral-300">{formatKey(header)}</p>
+                  <div className="mt-1 break-words text-sm text-foreground">
+                    {cell === undefined
+                      ? "-"
+                      : isPrimitive(cell)
+                      ? <PrimitiveValue value={cell} />
+                      : JSON.stringify(cell)}
+                  </div>
+                </div>
               );
             })}
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -132,7 +137,9 @@ function JsonNode({ title, value }: { title: string; value: JsonValue }) {
         <CardHeader>
           <CardTitle>{title}</CardTitle>
         </CardHeader>
-        <CardContent>{primitiveToText(value)}</CardContent>
+        <CardContent>
+          <PrimitiveValue value={value} />
+        </CardContent>
       </Card>
     );
   }

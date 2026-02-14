@@ -2,14 +2,6 @@ import { auth } from "@/auth";
 import DashboardBreadcrumb from "@/components/layout/dashboard-breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { decompressFromBase64, joinChunks } from "@/lib/compression";
 import { prisma } from "@/lib/prisma";
 import { format } from "date-fns";
@@ -26,6 +18,13 @@ export const metadata: Metadata = {
 type PageProps = {
   params: Promise<{ reportId: string }>;
 };
+
+const OverviewRow = ({ label, value }: { label: string; value: string }) => (
+  <div className="border-b border-border py-3 last:border-b-0">
+    <p className="text-sm font-medium text-foreground">{label}</p>
+    <p className="text-sm text-neutral-700 dark:text-neutral-200">{value}</p>
+  </div>
+);
 
 const LifeCalculatorReportPage = async ({ params }: PageProps) => {
   const { reportId: reportIdParam } = await params;
@@ -91,60 +90,22 @@ const LifeCalculatorReportPage = async ({ params }: PageProps) => {
             <CardTitle>Astro Data Overview</CardTitle>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Field</TableHead>
-                  <TableHead>Value</TableHead>
-                  <TableHead>Field</TableHead>
-                  <TableHead>Value</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell className="font-medium">Name</TableCell>
-                  <TableCell>{report.name}</TableCell>
-                  <TableCell className="font-medium">Gender</TableCell>
-                  <TableCell className="capitalize">{report.gender}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Place of Birth</TableCell>
-                  <TableCell>{report.placeOfBirth}</TableCell>
-                  <TableCell className="font-medium">Birth Date</TableCell>
-                  <TableCell>{format(report.birthDate, "dd MMM yyyy")}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Birth Time</TableCell>
-                  <TableCell>{report.birthTime}</TableCell>
-                  <TableCell className="font-medium">Timezone</TableCell>
-                  <TableCell>UTC{report.timezone >= 0 ? "+" : ""}{report.timezone}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Latitude</TableCell>
-                  <TableCell>{report.latitudeDeg} deg {report.latitudeMin} min {report.latitudeDir}</TableCell>
-                  <TableCell className="font-medium">Longitude</TableCell>
-                  <TableCell>{report.longitudeDeg} deg {report.longitudeMin} min {report.longitudeDir}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Chart Style</TableCell>
-                  <TableCell>{report.chartStyle}</TableCell>
-                  <TableCell className="font-medium">KP Horary Number</TableCell>
-                  <TableCell>{report.kpHoraryNumber}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">API Status</TableCell>
-                  <TableCell>{report.apiStatus ?? "-"}</TableCell>
-                  <TableCell className="font-medium">Job ID</TableCell>
-                  <TableCell>{report.apiJobId ?? "-"}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Created</TableCell>
-                  <TableCell>{format(report.createdAt, "dd MMM yyyy, hh:mm a")}</TableCell>
-                  <TableCell className="font-medium">Updated</TableCell>
-                  <TableCell>{format(report.updatedAt, "dd MMM yyyy, hh:mm a")}</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+            <div className="grid grid-cols-1 gap-x-8 md:grid-cols-2">
+              <OverviewRow label="Name" value={report.name} />
+              <OverviewRow label="Gender" value={report.gender} />
+              <OverviewRow label="Place of Birth" value={report.placeOfBirth} />
+              <OverviewRow label="Birth Date" value={format(report.birthDate, "dd MMM yyyy")} />
+              <OverviewRow label="Birth Time" value={report.birthTime} />
+              <OverviewRow label="Timezone" value={`UTC${report.timezone >= 0 ? "+" : ""}${report.timezone}`} />
+              <OverviewRow label="Latitude" value={`${report.latitudeDeg} deg ${report.latitudeMin} min ${report.latitudeDir}`} />
+              <OverviewRow label="Longitude" value={`${report.longitudeDeg} deg ${report.longitudeMin} min ${report.longitudeDir}`} />
+              <OverviewRow label="Chart Style" value={report.chartStyle} />
+              <OverviewRow label="KP Horary Number" value={String(report.kpHoraryNumber)} />
+              <OverviewRow label="API Status" value={report.apiStatus ?? "-"} />
+              <OverviewRow label="Job ID" value={report.apiJobId ?? "-"} />
+              <OverviewRow label="Created" value={format(report.createdAt, "dd MMM yyyy, hh:mm a")} />
+              <OverviewRow label="Updated" value={format(report.updatedAt, "dd MMM yyyy, hh:mm a")} />
+            </div>
           </CardContent>
         </Card>
 

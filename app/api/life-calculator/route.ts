@@ -1,5 +1,4 @@
 import { auth } from "@/auth";
-import { compressToBase64 } from "@/lib/compression";
 import { buildLifeCalculatorPayload, toBirthDateAtUtcMidnight } from "@/lib/life-calculator";
 import { prisma } from "@/lib/prisma";
 import { lifeCalculatorSchema } from "@/lib/zod";
@@ -118,7 +117,7 @@ export async function POST(request: Request) {
       kpHoraryNumber: apiPayload.kp_horary_number,
       requestPayload: apiPayload as Prisma.InputJsonValue,
       responseJson: responsePreview,
-      responseRaw: compressToBase64(responseText || JSON.stringify(apiResponseJson ?? null)),
+      responseRaw: responseText || JSON.stringify(apiResponseJson ?? null),
       apiJobId: envelope.job_id ?? null,
       apiStatus: envelope.status ?? null,
     },
