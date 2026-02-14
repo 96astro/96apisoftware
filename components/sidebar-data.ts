@@ -1,9 +1,11 @@
 import {
   Boxes,
+  Calculator,
   CalendarDays,
   ChartPie,
   Component,
   House,
+  HeartHandshake,
   Mail,
   MessageCircleMore,
   Server,
@@ -115,6 +117,16 @@ export const data = {
     },
     {
       label: "Application",
+    },
+    {
+      title: "Life Calculator",
+      url: "/life-calculator",
+      icon: Calculator,
+    },
+    {
+      title: "Ayu Milan",
+      url: "/ayu-milan",
+      icon: HeartHandshake,
     },
     {
       title: "Email",
