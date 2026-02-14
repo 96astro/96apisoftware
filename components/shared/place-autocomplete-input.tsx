@@ -8,9 +8,13 @@ type PlaceAutocompleteInputProps = {
   value: string;
   onChange: (value: string) => void;
   onPlaceDetailsChange?: (details: {
-    latitude: string;
-    longitude: string;
-    timezone: string;
+    latitudeDeg: string;
+    latitudeMin: string;
+    latitudeDir: "N" | "S" | "";
+    longitudeDeg: string;
+    longitudeMin: string;
+    longitudeDir: "E" | "W" | "";
+    timezoneOffset: string;
   }) => void;
   placeholder?: string;
 };
@@ -59,23 +63,37 @@ const PlaceAutocompleteInput = ({
         const lng = place?.geometry?.location?.lng?.();
         const offsetMinutes = place?.utc_offset_minutes;
 
-        const timezone =
+        const latitudeDeg =
+          typeof lat === "number" ? String(Math.floor(Math.abs(lat))) : "";
+        const latitudeMin =
+          typeof lat === "number"
+            ? String(Math.round((Math.abs(lat) % 1) * 60))
+            : "";
+        const latitudeDir: "N" | "S" | "" =
+          typeof lat === "number" ? (lat >= 0 ? "N" : "S") : "";
+
+        const longitudeDeg =
+          typeof lng === "number" ? String(Math.floor(Math.abs(lng))) : "";
+        const longitudeMin =
+          typeof lng === "number"
+            ? String(Math.round((Math.abs(lng) % 1) * 60))
+            : "";
+        const longitudeDir: "E" | "W" | "" =
+          typeof lng === "number" ? (lng >= 0 ? "E" : "W") : "";
+
+        const timezoneOffset =
           typeof offsetMinutes === "number"
-            ? (() => {
-                const sign = offsetMinutes >= 0 ? "+" : "-";
-                const absMinutes = Math.abs(offsetMinutes);
-                const hours = Math.floor(absMinutes / 60);
-                const minutes = absMinutes % 60;
-                return minutes === 0
-                  ? `UTC${sign}${hours}`
-                  : `UTC${sign}${hours}.${Math.round((minutes / 60) * 10)}`;
-              })()
+            ? Number((offsetMinutes / 60).toFixed(2)).toString()
             : "";
 
         onPlaceDetailsChange?.({
-          latitude: typeof lat === "number" ? lat.toFixed(6) : "",
-          longitude: typeof lng === "number" ? lng.toFixed(6) : "",
-          timezone,
+          latitudeDeg,
+          latitudeMin,
+          latitudeDir,
+          longitudeDeg,
+          longitudeMin,
+          longitudeDir,
+          timezoneOffset,
         });
       });
     };
@@ -108,9 +126,13 @@ const PlaceAutocompleteInput = ({
       onChange={(e) => {
         onChange(e.target.value);
         onPlaceDetailsChange?.({
-          latitude: "",
-          longitude: "",
-          timezone: "",
+          latitudeDeg: "",
+          latitudeMin: "",
+          latitudeDir: "",
+          longitudeDeg: "",
+          longitudeMin: "",
+          longitudeDir: "",
+          timezoneOffset: "",
         });
       }}
       placeholder={placeholder}

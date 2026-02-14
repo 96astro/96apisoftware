@@ -37,9 +37,13 @@ const LifeCalculatorForm = () => {
       name: "",
       gender: undefined,
       placeOfBirth: "",
-      latitude: "",
-      longitude: "",
-      timezone: "",
+      latitudeDeg: "",
+      latitudeMin: "",
+      latitudeDir: "N",
+      longitudeDeg: "",
+      longitudeMin: "",
+      longitudeDir: "E",
+      timezoneOffset: "",
       birthDate: "",
       birthTime: "",
     },
@@ -49,6 +53,14 @@ const LifeCalculatorForm = () => {
     toast.success("Life Calculator form submitted.");
     console.log("life-calculator values", values);
   };
+
+  const latitudeDeg = form.watch("latitudeDeg");
+  const latitudeMin = form.watch("latitudeMin");
+  const latitudeDir = form.watch("latitudeDir");
+  const longitudeDeg = form.watch("longitudeDeg");
+  const longitudeMin = form.watch("longitudeMin");
+  const longitudeDir = form.watch("longitudeDir");
+  const timezoneOffset = form.watch("timezoneOffset");
 
   return (
     <Form {...form}>
@@ -101,10 +113,14 @@ const LifeCalculatorForm = () => {
                       id="placeOfBirth"
                       value={field.value}
                       onChange={field.onChange}
-                      onPlaceDetailsChange={({ latitude, longitude, timezone }) => {
-                        form.setValue("latitude", latitude, { shouldValidate: true });
-                        form.setValue("longitude", longitude, { shouldValidate: true });
-                        form.setValue("timezone", timezone, { shouldValidate: true });
+                      onPlaceDetailsChange={(details) => {
+                        form.setValue("latitudeDeg", details.latitudeDeg, { shouldValidate: true });
+                        form.setValue("latitudeMin", details.latitudeMin, { shouldValidate: true });
+                        form.setValue("latitudeDir", details.latitudeDir === "S" ? "S" : "N", { shouldValidate: true });
+                        form.setValue("longitudeDeg", details.longitudeDeg, { shouldValidate: true });
+                        form.setValue("longitudeMin", details.longitudeMin, { shouldValidate: true });
+                        form.setValue("longitudeDir", details.longitudeDir === "W" ? "W" : "E", { shouldValidate: true });
+                        form.setValue("timezoneOffset", details.timezoneOffset, { shouldValidate: true });
                       }}
                       placeholder="Place of Birth"
                     />
@@ -114,47 +130,17 @@ const LifeCalculatorForm = () => {
               )}
             />
 
-        <FormField
-          control={form.control}
-          name="latitude"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Latitude</FormLabel>
-              <FormControl>
-                <Input {...field} readOnly placeholder="Latitude" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="longitude"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Longitude</FormLabel>
-              <FormControl>
-                <Input {...field} readOnly placeholder="Longitude" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="timezone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Timezone (UTC Offset)</FormLabel>
-              <FormControl>
-                <Input {...field} readOnly placeholder="Timezone" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="md:col-span-2 xl:col-span-3 text-base text-neutral-800 dark:text-neutral-100">
+          <p>
+            Latitude: {latitudeDeg || "--"}° {latitudeMin || "--"}&apos; {latitudeDir || "-"}
+          </p>
+          <p>
+            Longitude: {longitudeDeg || "--"}° {longitudeMin || "--"}&apos; {longitudeDir || "-"}
+          </p>
+          <p>
+            Timezone: UTC{timezoneOffset ? (Number(timezoneOffset) >= 0 ? "+" : "") + timezoneOffset : "--"}
+          </p>
+        </div>
 
         <FormField
           control={form.control}

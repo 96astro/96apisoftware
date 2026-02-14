@@ -28,16 +28,24 @@ const AyuMilanForm = () => {
       boyBirthDate: "",
       boyBirthTime: "",
       boyPlaceOfBirth: "",
-      boyLatitude: "",
-      boyLongitude: "",
-      boyTimezone: "",
+      boyLatitudeDeg: "",
+      boyLatitudeMin: "",
+      boyLatitudeDir: "N",
+      boyLongitudeDeg: "",
+      boyLongitudeMin: "",
+      boyLongitudeDir: "E",
+      boyTimezoneOffset: "",
       girlName: "",
       girlBirthDate: "",
       girlBirthTime: "",
       girlPlaceOfBirth: "",
-      girlLatitude: "",
-      girlLongitude: "",
-      girlTimezone: "",
+      girlLatitudeDeg: "",
+      girlLatitudeMin: "",
+      girlLatitudeDir: "N",
+      girlLongitudeDeg: "",
+      girlLongitudeMin: "",
+      girlLongitudeDir: "E",
+      girlTimezoneOffset: "",
     },
   });
 
@@ -45,6 +53,22 @@ const AyuMilanForm = () => {
     toast.success("Ayu Milan form submitted.");
     console.log("ayu-milan values", values);
   };
+
+  const boyLatitudeDeg = form.watch("boyLatitudeDeg");
+  const boyLatitudeMin = form.watch("boyLatitudeMin");
+  const boyLatitudeDir = form.watch("boyLatitudeDir");
+  const boyLongitudeDeg = form.watch("boyLongitudeDeg");
+  const boyLongitudeMin = form.watch("boyLongitudeMin");
+  const boyLongitudeDir = form.watch("boyLongitudeDir");
+  const boyTimezoneOffset = form.watch("boyTimezoneOffset");
+
+  const girlLatitudeDeg = form.watch("girlLatitudeDeg");
+  const girlLatitudeMin = form.watch("girlLatitudeMin");
+  const girlLatitudeDir = form.watch("girlLatitudeDir");
+  const girlLongitudeDeg = form.watch("girlLongitudeDeg");
+  const girlLongitudeMin = form.watch("girlLongitudeMin");
+  const girlLongitudeDir = form.watch("girlLongitudeDir");
+  const girlTimezoneOffset = form.watch("girlTimezoneOffset");
 
   return (
     <Form {...form}>
@@ -116,10 +140,14 @@ const AyuMilanForm = () => {
                       id="boyPlaceOfBirth"
                       value={field.value}
                       onChange={field.onChange}
-                      onPlaceDetailsChange={({ latitude, longitude, timezone }) => {
-                        form.setValue("boyLatitude", latitude, { shouldValidate: true });
-                        form.setValue("boyLongitude", longitude, { shouldValidate: true });
-                        form.setValue("boyTimezone", timezone, { shouldValidate: true });
+                      onPlaceDetailsChange={(details) => {
+                        form.setValue("boyLatitudeDeg", details.latitudeDeg, { shouldValidate: true });
+                        form.setValue("boyLatitudeMin", details.latitudeMin, { shouldValidate: true });
+                        form.setValue("boyLatitudeDir", details.latitudeDir === "S" ? "S" : "N", { shouldValidate: true });
+                        form.setValue("boyLongitudeDeg", details.longitudeDeg, { shouldValidate: true });
+                        form.setValue("boyLongitudeMin", details.longitudeMin, { shouldValidate: true });
+                        form.setValue("boyLongitudeDir", details.longitudeDir === "W" ? "W" : "E", { shouldValidate: true });
+                        form.setValue("boyTimezoneOffset", details.timezoneOffset, { shouldValidate: true });
                       }}
                       placeholder="Enter City"
                     />
@@ -128,48 +156,17 @@ const AyuMilanForm = () => {
                 </FormItem>
               )}
             />
-
-            <FormField
-              control={form.control}
-              name="boyLatitude"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Latitude</FormLabel>
-                  <FormControl>
-                    <Input {...field} readOnly placeholder="Latitude" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="boyLongitude"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Longitude</FormLabel>
-                  <FormControl>
-                    <Input {...field} readOnly placeholder="Longitude" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="boyTimezone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Timezone (UTC Offset)</FormLabel>
-                  <FormControl>
-                    <Input {...field} readOnly placeholder="Timezone" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="text-base text-neutral-800 dark:text-neutral-100">
+              <p>
+                Latitude: {boyLatitudeDeg || "--"}° {boyLatitudeMin || "--"}&apos; {boyLatitudeDir || "-"}
+              </p>
+              <p>
+                Longitude: {boyLongitudeDeg || "--"}° {boyLongitudeMin || "--"}&apos; {boyLongitudeDir || "-"}
+              </p>
+              <p>
+                Timezone: UTC{boyTimezoneOffset ? (Number(boyTimezoneOffset) >= 0 ? "+" : "") + boyTimezoneOffset : "--"}
+              </p>
+            </div>
           </div>
 
           <div className="space-y-5">
@@ -234,10 +231,14 @@ const AyuMilanForm = () => {
                       id="girlPlaceOfBirth"
                       value={field.value}
                       onChange={field.onChange}
-                      onPlaceDetailsChange={({ latitude, longitude, timezone }) => {
-                        form.setValue("girlLatitude", latitude, { shouldValidate: true });
-                        form.setValue("girlLongitude", longitude, { shouldValidate: true });
-                        form.setValue("girlTimezone", timezone, { shouldValidate: true });
+                      onPlaceDetailsChange={(details) => {
+                        form.setValue("girlLatitudeDeg", details.latitudeDeg, { shouldValidate: true });
+                        form.setValue("girlLatitudeMin", details.latitudeMin, { shouldValidate: true });
+                        form.setValue("girlLatitudeDir", details.latitudeDir === "S" ? "S" : "N", { shouldValidate: true });
+                        form.setValue("girlLongitudeDeg", details.longitudeDeg, { shouldValidate: true });
+                        form.setValue("girlLongitudeMin", details.longitudeMin, { shouldValidate: true });
+                        form.setValue("girlLongitudeDir", details.longitudeDir === "W" ? "W" : "E", { shouldValidate: true });
+                        form.setValue("girlTimezoneOffset", details.timezoneOffset, { shouldValidate: true });
                       }}
                       placeholder="Enter City"
                     />
@@ -246,48 +247,17 @@ const AyuMilanForm = () => {
                 </FormItem>
               )}
             />
-
-            <FormField
-              control={form.control}
-              name="girlLatitude"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Latitude</FormLabel>
-                  <FormControl>
-                    <Input {...field} readOnly placeholder="Latitude" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="girlLongitude"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Longitude</FormLabel>
-                  <FormControl>
-                    <Input {...field} readOnly placeholder="Longitude" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="girlTimezone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Timezone (UTC Offset)</FormLabel>
-                  <FormControl>
-                    <Input {...field} readOnly placeholder="Timezone" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="text-base text-neutral-800 dark:text-neutral-100">
+              <p>
+                Latitude: {girlLatitudeDeg || "--"}° {girlLatitudeMin || "--"}&apos; {girlLatitudeDir || "-"}
+              </p>
+              <p>
+                Longitude: {girlLongitudeDeg || "--"}° {girlLongitudeMin || "--"}&apos; {girlLongitudeDir || "-"}
+              </p>
+              <p>
+                Timezone: UTC{girlTimezoneOffset ? (Number(girlTimezoneOffset) >= 0 ? "+" : "") + girlTimezoneOffset : "--"}
+              </p>
+            </div>
           </div>
         </div>
 
