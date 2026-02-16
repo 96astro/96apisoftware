@@ -124,6 +124,11 @@ export const data = {
       icon: Calculator,
     },
     {
+      title: "Astro Form",
+      url: "/astro-form",
+      icon: Calculator,
+    },
+    {
       title: "Ayu Milan",
       url: "/ayu-milan",
       icon: HeartHandshake,

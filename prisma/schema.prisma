@@ -24,6 +24,7 @@ model User {
   sessions            Session[]
   passwordResetTokens PasswordResetToken[]
   lifeCalculatorReports LifeCalculatorReport[]
+  astroFormReports    AstroFormReport[]
   ayuMilanReports     AyuMilanReport[]
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
@@ -128,6 +129,42 @@ model LifeCalculatorResponseChunk {
 
   @@unique([reportId, chunkIndex])
   @@index([reportId])
+}
+
+model AstroFormReport {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  name            String
+  gender          String
+  placeOfBirth    String
+  birthDate       DateTime
+  birthTime       String
+  day             Int
+  month           Int
+  year            Int
+  hour            Int
+  minute          Int
+  second          Int
+  longitudeDeg    Int
+  longitudeMin    Int
+  longitudeDir    String   @db.VarChar(1)
+  latitudeDeg     Int
+  latitudeMin     Int
+  latitudeDir     String   @db.VarChar(1)
+  timezone        Float
+  chartStyle      String
+  kpHoraryNumber  Int
+  requestPayload  Json
+  responseJson    Json?
+  responseRaw     String   @db.LongText
+  apiJobId        String?
+  apiStatus       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }
 
 model AyuMilanReport {

@@ -90,6 +90,25 @@ export const lifeCalculatorSchema = z.object({
 
 export type LifeCalculatorSchemaType = z.infer<typeof lifeCalculatorSchema>;
 
+export const astroFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  gender: z.enum(["male", "female", "other"], {
+    required_error: "Gender is required",
+  }),
+  placeOfBirth: z.string().min(1, "Place of Birth is required"),
+  latitudeDeg: z.string().min(1, "Latitude degree is required"),
+  latitudeMin: z.string().min(1, "Latitude minute is required"),
+  latitudeDir: z.enum(["N", "S"], { required_error: "Latitude direction is required" }),
+  longitudeDeg: z.string().min(1, "Longitude degree is required"),
+  longitudeMin: z.string().min(1, "Longitude minute is required"),
+  longitudeDir: z.enum(["E", "W"], { required_error: "Longitude direction is required" }),
+  timezoneOffset: z.string().min(1, "Timezone is required"),
+  birthDate: z.string().min(1, "Birth Date is required"),
+  birthTime: z.string().min(1, "Birth Time is required"),
+});
+
+export type AstroFormSchemaType = z.infer<typeof astroFormSchema>;
+
 export const ayuMilanSchema = z.object({
   boyName: z.string().min(1, "Boy Name is required"),
   boyBirthDate: z.string().min(1, "Boy Birth Date is required"),
