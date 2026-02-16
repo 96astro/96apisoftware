@@ -476,17 +476,30 @@ const DataTable = ({
 }) => {
   if (!rows.length) return null;
   const headers = Object.keys(rows[0]);
+  const headBase =
+    "px-4 h-12 border-e last:border-e-0 text-center border-t border-neutral-200 first:border-s last:border-e dark:border-slate-600";
+  const cellBase =
+    "py-3 px-4 border-e last:border-e-0 border-b text-center first:border-s last:border-e border-neutral-200 dark:border-slate-600";
+  const headTone = greenHead
+    ? "bg-green-600 text-white"
+    : "bg-neutral-100 dark:bg-slate-700 text-foreground";
+
   return (
     <Card className="card">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <Table>
+        <Table className="table-auto border-spacing-0 border-separate">
           <TableHeader>
-            <TableRow className={greenHead ? "bg-green-600 text-white hover:bg-green-600" : ""}>
-              {headers.map((header) => (
-                <TableHead key={header} className={greenHead ? "text-white" : ""}>
+            <TableRow className="border-0">
+              {headers.map((header, index) => (
+                <TableHead
+                  key={header}
+                  className={`${headBase} ${headTone} ${index === 0 ? "rounded-tl-lg" : ""} ${
+                    index === headers.length - 1 ? "rounded-tr-lg" : ""
+                  }`}
+                >
                   {toTitle(header)}
                 </TableHead>
               ))}
@@ -494,9 +507,16 @@ const DataTable = ({
           </TableHeader>
           <TableBody>
             {rows.map((row, idx) => (
-              <TableRow key={idx}>
-                {headers.map((header) => (
-                  <TableCell key={header}>{toDisplay(row[header])}</TableCell>
+              <TableRow key={idx} className="hover:bg-transparent">
+                {headers.map((header, colIdx) => (
+                  <TableCell
+                    key={header}
+                    className={`${cellBase} ${idx % 2 === 0 ? "bg-white dark:bg-slate-900/20" : "bg-neutral-50 dark:bg-slate-900/40"} ${
+                      idx === rows.length - 1 && colIdx === 0 ? "rounded-bl-lg" : ""
+                    } ${idx === rows.length - 1 && colIdx === headers.length - 1 ? "rounded-br-lg" : ""}`}
+                  >
+                    {toDisplay(row[header])}
+                  </TableCell>
                 ))}
               </TableRow>
             ))}
@@ -613,12 +633,16 @@ const AstroFormReportPage = async ({ params }: PageProps) => {
             <SectionHeader title="Chart" />
           </CardHeader>
           <CardContent>
-            <Table>
+            <Table className="table-auto border-spacing-0 border-separate">
               <TableBody>
-                {chartRows.map((row) => (
-                  <TableRow key={row.label}>
-                    <TableCell className="font-semibold">{row.label}</TableCell>
-                    <TableCell>{row.value}</TableCell>
+                {chartRows.map((row, idx) => (
+                  <TableRow key={row.label} className="hover:bg-transparent">
+                    <TableCell className="py-3 px-4 border border-neutral-200 dark:border-slate-600 font-semibold bg-neutral-100 dark:bg-slate-700">
+                      {row.label}
+                    </TableCell>
+                    <TableCell className="py-3 px-4 border border-neutral-200 dark:border-slate-600">
+                      {row.value}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -633,37 +657,55 @@ const AstroFormReportPage = async ({ params }: PageProps) => {
             <CardTitle>Ayumilan Calculation</CardTitle>
           </CardHeader>
           <CardContent>
-            <Table>
+            <Table className="table-auto border-spacing-0 border-separate">
               <TableHeader>
-                <TableRow className="bg-green-600 text-white hover:bg-green-600">
-                  <TableHead className="text-white">Years</TableHead>
-                  <TableHead className="text-white">Months</TableHead>
-                  <TableHead className="text-white">Days</TableHead>
+                <TableRow className="border-0">
+                  <TableHead className="px-4 h-12 border-e text-center border-t border-neutral-200 dark:border-slate-600 rounded-tl-lg bg-green-600 text-white">
+                    Years
+                  </TableHead>
+                  <TableHead className="px-4 h-12 border-e text-center border-t border-neutral-200 dark:border-slate-600 bg-green-600 text-white">
+                    Months
+                  </TableHead>
+                  <TableHead className="px-4 h-12 text-center border-t border-s border-e border-neutral-200 dark:border-slate-600 rounded-tr-lg bg-green-600 text-white">
+                    Days
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow>
-                  <TableCell>{toDisplay(ayuAge.years)}</TableCell>
-                  <TableCell>{toDisplay(ayuAge.months)}</TableCell>
-                  <TableCell>{toDisplay(ayuAge.days)}</TableCell>
+                <TableRow className="hover:bg-transparent">
+                  <TableCell className="py-3 px-4 border border-neutral-200 dark:border-slate-600 text-center">
+                    {toDisplay(ayuAge.years)}
+                  </TableCell>
+                  <TableCell className="py-3 px-4 border border-neutral-200 dark:border-slate-600 text-center">
+                    {toDisplay(ayuAge.months)}
+                  </TableCell>
+                  <TableCell className="py-3 px-4 border border-neutral-200 dark:border-slate-600 text-center">
+                    {toDisplay(ayuAge.days)}
+                  </TableCell>
                 </TableRow>
-                <TableRow>
-                  <TableCell colSpan={2} className="bg-green-600 text-center font-semibold text-white">
+                <TableRow className="hover:bg-transparent">
+                  <TableCell colSpan={2} className="py-3 px-4 border border-neutral-200 dark:border-slate-600 bg-green-600 text-center font-semibold text-white">
                     LAGNA LORD
                   </TableCell>
-                  <TableCell>{toDisplay(ayumilan.lagna_lord)}</TableCell>
+                  <TableCell className="py-3 px-4 border border-neutral-200 dark:border-slate-600 text-center">
+                    {toDisplay(ayumilan.lagna_lord)}
+                  </TableCell>
                 </TableRow>
-                <TableRow>
-                  <TableCell colSpan={2} className="bg-green-600 text-center font-semibold text-white">
+                <TableRow className="hover:bg-transparent">
+                  <TableCell colSpan={2} className="py-3 px-4 border border-neutral-200 dark:border-slate-600 bg-green-600 text-center font-semibold text-white">
                     METHOD
                   </TableCell>
-                  <TableCell>{toDisplay(ayumilan.method)}</TableCell>
+                  <TableCell className="py-3 px-4 border border-neutral-200 dark:border-slate-600 text-center">
+                    {toDisplay(ayumilan.method)}
+                  </TableCell>
                 </TableRow>
-                <TableRow>
-                  <TableCell colSpan={2} className="bg-green-600 text-center font-semibold text-white">
+                <TableRow className="hover:bg-transparent">
+                  <TableCell colSpan={2} className="py-3 px-4 border border-neutral-200 dark:border-slate-600 bg-green-600 text-center font-semibold text-white">
                     STRONGEST
                   </TableCell>
-                  <TableCell>{toDisplay(ayumilan.strongest)}</TableCell>
+                  <TableCell className="py-3 px-4 border border-neutral-200 dark:border-slate-600 text-center">
+                    {toDisplay(ayumilan.strongest)}
+                  </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -680,12 +722,19 @@ const AstroFormReportPage = async ({ params }: PageProps) => {
               <CardTitle>Bhava Bal Table</CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
+              <Table className="table-auto border-spacing-0 border-separate">
                 <TableHeader>
-                  <TableRow className="bg-green-600 text-white hover:bg-green-600">
-                    <TableHead className="text-white">Planet</TableHead>
+                  <TableRow className="border-0">
+                    <TableHead className="px-4 h-12 border-e text-center border-t border-neutral-200 dark:border-slate-600 rounded-tl-lg bg-green-600 text-white">
+                      Planet
+                    </TableHead>
                     {Array.from({ length: 12 }, (_, i) => (
-                      <TableHead key={i + 1} className="text-white">
+                      <TableHead
+                        key={i + 1}
+                        className={`px-4 h-12 border-e text-center border-t border-neutral-200 dark:border-slate-600 bg-green-600 text-white ${
+                          i === 11 ? "rounded-tr-lg" : ""
+                        }`}
+                      >
                         {i + 1}
                       </TableHead>
                     ))}
@@ -694,8 +743,8 @@ const AstroFormReportPage = async ({ params }: PageProps) => {
                 <TableBody>
                   {bhavaBalCategoryRows.map((row, idx) =>
                     row.label.startsWith("__") ? (
-                      <TableRow key={`${row.label}-${idx}`}>
-                        <TableCell colSpan={13} className="text-center font-semibold">
+                      <TableRow key={`${row.label}-${idx}`} className="hover:bg-transparent">
+                        <TableCell colSpan={13} className="py-2 px-4 border border-neutral-200 dark:border-slate-600 text-center font-semibold bg-neutral-100 dark:bg-slate-800">
                           {row.label
                             .replaceAll("__", "")
                             .replaceAll("_", " ")
@@ -703,10 +752,14 @@ const AstroFormReportPage = async ({ params }: PageProps) => {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      <TableRow key={`${row.label}-${idx}`}>
-                        <TableCell>{row.label}</TableCell>
+                      <TableRow key={`${row.label}-${idx}`} className="hover:bg-transparent">
+                        <TableCell className="py-3 px-4 border border-neutral-200 dark:border-slate-600 text-center">
+                          {row.label}
+                        </TableCell>
                         {row.values.map((value, col) => (
-                          <TableCell key={`${idx}-${col}`}>{value}</TableCell>
+                          <TableCell key={`${idx}-${col}`} className="py-3 px-4 border border-neutral-200 dark:border-slate-600 text-center">
+                            {value}
+                          </TableCell>
                         ))}
                       </TableRow>
                     )
