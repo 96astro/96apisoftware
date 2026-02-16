@@ -693,10 +693,11 @@ const AstroFormReportPage = async ({ params }: PageProps) => {
         <DataTable title="Temporal Friendship" rows={temporalRows} greenHead />
         <DataTable title="Five-fold (Compound) Friendship" rows={compoundRows} greenHead />
         <DataTable title="Shad Bala Table" rows={shadBalaRows} greenHead />
+        <DataTable title="Bhava Bal Table" rows={bhavaBalRows} greenHead />
         {bhavaBalCategoryRows.length > 0 ? (
           <Card className="card">
             <CardHeader>
-              <CardTitle>Bhava Bal Table</CardTitle>
+              <CardTitle>Bhava Bal Category View</CardTitle>
             </CardHeader>
             <CardContent>
               <Table className="table-auto border-spacing-0 border-separate">
@@ -745,9 +746,7 @@ const AstroFormReportPage = async ({ params }: PageProps) => {
               </Table>
             </CardContent>
           </Card>
-        ) : (
-          <DataTable title="Bhava Bal Table" rows={bhavaBalRows} greenHead />
-        )}
+        ) : null}
         <DataTable title="Bhava Degrees Table" rows={bhavaDegreeRows} greenHead />
       </div>
     </>
