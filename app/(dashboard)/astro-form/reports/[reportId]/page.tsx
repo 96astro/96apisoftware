@@ -657,58 +657,35 @@ const AstroFormReportPage = async ({ params }: PageProps) => {
             <CardTitle>Ayumilan Calculation</CardTitle>
           </CardHeader>
           <CardContent>
-            <Table className="table-auto border-spacing-0 border-separate">
-              <TableHeader>
-                <TableRow className="border-0">
-                  <TableHead className="px-4 h-12 border-e text-center border-t border-neutral-200 dark:border-slate-600 rounded-tl-lg bg-green-600 text-white">
-                    Years
-                  </TableHead>
-                  <TableHead className="px-4 h-12 border-e text-center border-t border-neutral-200 dark:border-slate-600 bg-green-600 text-white">
-                    Months
-                  </TableHead>
-                  <TableHead className="px-4 h-12 text-center border-t border-s border-e border-neutral-200 dark:border-slate-600 rounded-tr-lg bg-green-600 text-white">
-                    Days
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow className="hover:bg-transparent">
-                  <TableCell className="py-3 px-4 border border-neutral-200 dark:border-slate-600 text-center">
-                    {toDisplay(ayuAge.years)}
-                  </TableCell>
-                  <TableCell className="py-3 px-4 border border-neutral-200 dark:border-slate-600 text-center">
-                    {toDisplay(ayuAge.months)}
-                  </TableCell>
-                  <TableCell className="py-3 px-4 border border-neutral-200 dark:border-slate-600 text-center">
-                    {toDisplay(ayuAge.days)}
-                  </TableCell>
-                </TableRow>
-                <TableRow className="hover:bg-transparent">
-                  <TableCell colSpan={2} className="py-3 px-4 border border-neutral-200 dark:border-slate-600 bg-green-600 text-center font-semibold text-white">
-                    LAGNA LORD
-                  </TableCell>
-                  <TableCell className="py-3 px-4 border border-neutral-200 dark:border-slate-600 text-center">
-                    {toDisplay(ayumilan.lagna_lord)}
-                  </TableCell>
-                </TableRow>
-                <TableRow className="hover:bg-transparent">
-                  <TableCell colSpan={2} className="py-3 px-4 border border-neutral-200 dark:border-slate-600 bg-green-600 text-center font-semibold text-white">
-                    METHOD
-                  </TableCell>
-                  <TableCell className="py-3 px-4 border border-neutral-200 dark:border-slate-600 text-center">
-                    {toDisplay(ayumilan.method)}
-                  </TableCell>
-                </TableRow>
-                <TableRow className="hover:bg-transparent">
-                  <TableCell colSpan={2} className="py-3 px-4 border border-neutral-200 dark:border-slate-600 bg-green-600 text-center font-semibold text-white">
-                    STRONGEST
-                  </TableCell>
-                  <TableCell className="py-3 px-4 border border-neutral-200 dark:border-slate-600 text-center">
-                    {toDisplay(ayumilan.strongest)}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="rounded-lg border border-neutral-200 bg-gradient-to-br from-green-600 to-green-500 p-4 text-white dark:border-slate-600">
+                <p className="text-sm opacity-90">Years</p>
+                <p className="mt-1 text-3xl font-semibold">{toDisplay(ayuAge.years)}</p>
+              </div>
+              <div className="rounded-lg border border-neutral-200 bg-gradient-to-br from-emerald-600 to-emerald-500 p-4 text-white dark:border-slate-600">
+                <p className="text-sm opacity-90">Months</p>
+                <p className="mt-1 text-3xl font-semibold">{toDisplay(ayuAge.months)}</p>
+              </div>
+              <div className="rounded-lg border border-neutral-200 bg-gradient-to-br from-teal-600 to-teal-500 p-4 text-white dark:border-slate-600">
+                <p className="text-sm opacity-90">Days</p>
+                <p className="mt-1 text-3xl font-semibold">{toDisplay(ayuAge.days)}</p>
+              </div>
+            </div>
+
+            <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
+              <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-slate-600 dark:bg-slate-900/40">
+                <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-300">Lagna Lord</p>
+                <p className="mt-2 text-lg font-semibold text-foreground">{toDisplay(ayumilan.lagna_lord)}</p>
+              </div>
+              <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-slate-600 dark:bg-slate-900/40">
+                <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-300">Method</p>
+                <p className="mt-2 text-lg font-semibold text-foreground">{toDisplay(ayumilan.method)}</p>
+              </div>
+              <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-slate-600 dark:bg-slate-900/40">
+                <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-300">Strongest</p>
+                <p className="mt-2 text-lg font-semibold text-foreground">{toDisplay(ayumilan.strongest)}</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
         <DataTable title="Planetary Details Table" rows={planetaryRows} greenHead />
