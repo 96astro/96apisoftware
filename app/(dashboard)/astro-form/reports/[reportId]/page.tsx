@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import ReportTabs from "./components/report-tabs";
 
 export const metadata: Metadata = {
   title: "Astro Form Report | WowDash Admin Dashboard",
@@ -741,6 +742,7 @@ const AstroFormReportPage = async ({ params }: PageProps) => {
           </Card>
         ) : null}
         <DataTable title="Bhava Degrees Table" rows={bhavaDegreeRows} greenHead />
+        <ReportTabs />
       </div>
     </>
   );
