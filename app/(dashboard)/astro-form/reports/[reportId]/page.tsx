@@ -29,11 +29,12 @@ type DataMap = Record<string, unknown>;
 type DataRow = Record<string, string | number | null | undefined>;
 
 const PLANET_ORDER = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
+const TABLE_HEAD_BG = "bg-primary text-primary-foreground";
 
 const OverviewRow = ({ label, value }: { label: string; value: string }) => (
-  <div className="border-b border-border py-3 last:border-b-0">
-    <p className="text-sm font-medium text-foreground">{label}</p>
-    <p className="text-sm text-neutral-700 dark:text-neutral-200">{value}</p>
+  <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-slate-600 dark:bg-slate-900/40">
+    <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-300">{label}</p>
+    <p className="mt-2 text-xl font-semibold text-foreground">{value}</p>
   </div>
 );
 
@@ -480,9 +481,7 @@ const DataTable = ({
     "px-4 h-12 border-e last:border-e-0 text-center border-t border-neutral-200 first:border-s last:border-e dark:border-slate-600";
   const cellBase =
     "py-3 px-4 border-e last:border-e-0 border-b text-center first:border-s last:border-e border-neutral-200 dark:border-slate-600";
-  const headTone = greenHead
-    ? "bg-green-600 text-white"
-    : "bg-neutral-100 dark:bg-slate-700 text-foreground";
+  const headTone = `${TABLE_HEAD_BG}`;
 
   return (
     <Card className="card">
@@ -557,10 +556,6 @@ const AstroFormReportPage = async ({ params }: PageProps) => {
       longitudeDir: true,
       chartStyle: true,
       kpHoraryNumber: true,
-      apiStatus: true,
-      apiJobId: true,
-      createdAt: true,
-      updatedAt: true,
       responseRaw: true,
       responseJson: true,
     },
@@ -606,7 +601,9 @@ const AstroFormReportPage = async ({ params }: PageProps) => {
       <div className="space-y-6">
         <Card className="card">
           <CardHeader>
-            <CardTitle>Astro Data Overview</CardTitle>
+            <div className="rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-white">
+              <CardTitle className="text-white">Astro Data Overview</CardTitle>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-x-8 md:grid-cols-2">
@@ -620,10 +617,6 @@ const AstroFormReportPage = async ({ params }: PageProps) => {
               <OverviewRow label="Longitude" value={`${report.longitudeDeg} deg ${report.longitudeMin} min ${report.longitudeDir}`} />
               <OverviewRow label="Chart Style" value={report.chartStyle} />
               <OverviewRow label="KP Horary Number" value={String(report.kpHoraryNumber)} />
-              <OverviewRow label="API Status" value={report.apiStatus ?? "-"} />
-              <OverviewRow label="Job ID" value={report.apiJobId ?? "-"} />
-              <OverviewRow label="Created" value={format(report.createdAt, "dd MMM yyyy, hh:mm a")} />
-              <OverviewRow label="Updated" value={format(report.updatedAt, "dd MMM yyyy, hh:mm a")} />
             </div>
           </CardContent>
         </Card>
@@ -658,15 +651,15 @@ const AstroFormReportPage = async ({ params }: PageProps) => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="rounded-lg border border-neutral-200 bg-gradient-to-br from-green-600 to-green-500 p-4 text-white dark:border-slate-600">
+              <div className="rounded-lg border border-neutral-200 bg-gradient-to-br from-blue-600 to-indigo-600 p-4 text-white dark:border-slate-600">
                 <p className="text-sm opacity-90">Years</p>
                 <p className="mt-1 text-3xl font-semibold">{toDisplay(ayuAge.years)}</p>
               </div>
-              <div className="rounded-lg border border-neutral-200 bg-gradient-to-br from-emerald-600 to-emerald-500 p-4 text-white dark:border-slate-600">
+              <div className="rounded-lg border border-neutral-200 bg-gradient-to-br from-blue-600 to-indigo-600 p-4 text-white dark:border-slate-600">
                 <p className="text-sm opacity-90">Months</p>
                 <p className="mt-1 text-3xl font-semibold">{toDisplay(ayuAge.months)}</p>
               </div>
-              <div className="rounded-lg border border-neutral-200 bg-gradient-to-br from-teal-600 to-teal-500 p-4 text-white dark:border-slate-600">
+              <div className="rounded-lg border border-neutral-200 bg-gradient-to-br from-blue-600 to-indigo-600 p-4 text-white dark:border-slate-600">
                 <p className="text-sm opacity-90">Days</p>
                 <p className="mt-1 text-3xl font-semibold">{toDisplay(ayuAge.days)}</p>
               </div>
@@ -703,13 +696,13 @@ const AstroFormReportPage = async ({ params }: PageProps) => {
               <Table className="table-auto border-spacing-0 border-separate">
                 <TableHeader>
                   <TableRow className="border-0">
-                    <TableHead className="px-4 h-12 border-e text-center border-t border-neutral-200 dark:border-slate-600 rounded-tl-lg bg-green-600 text-white">
+                    <TableHead className={`px-4 h-12 border-e text-center border-t border-neutral-200 dark:border-slate-600 rounded-tl-lg ${TABLE_HEAD_BG}`}>
                       Planet
                     </TableHead>
                     {Array.from({ length: 12 }, (_, i) => (
                       <TableHead
                         key={i + 1}
-                        className={`px-4 h-12 border-e text-center border-t border-neutral-200 dark:border-slate-600 bg-green-600 text-white ${
+                        className={`px-4 h-12 border-e text-center border-t border-neutral-200 dark:border-slate-600 ${TABLE_HEAD_BG} ${
                           i === 11 ? "rounded-tr-lg" : ""
                         }`}
                       >
