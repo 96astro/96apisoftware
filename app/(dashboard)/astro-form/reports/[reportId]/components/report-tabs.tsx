@@ -66,15 +66,15 @@ const ReportTabs = () => {
       <h3 className="mb-4 text-lg font-semibold text-foreground">Advanced Sections</h3>
 
       <Tabs defaultValue={defaultTab} className="gap-0">
-        <div className="overflow-x-auto pb-2">
-          <TabsList className="h-auto min-w-max gap-2 bg-transparent p-0 dark:bg-transparent">
+        <div className="pb-2">
+          <TabsList className="h-auto w-full flex-wrap justify-start gap-2 bg-transparent p-0 dark:bg-transparent">
             {REPORT_TABS.map((tab) => {
               const Icon = tab.icon;
               return (
                 <TabsTrigger
                   key={tab.value}
                   value={tab.value}
-                  className="h-10 rounded-lg border border-neutral-200 px-4 text-sm font-semibold text-neutral-700 transition-colors data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-none dark:border-slate-600 dark:text-slate-100 dark:data-[state=active]:bg-primary"
+                  className="!flex-none h-10 rounded-lg border border-neutral-200 px-4 text-sm font-semibold text-neutral-700 transition-colors data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-none dark:border-slate-600 dark:text-slate-100 dark:data-[state=active]:bg-primary"
                 >
                   <span className="inline-flex items-center gap-2 whitespace-nowrap">
                     <Icon className="size-4" />
