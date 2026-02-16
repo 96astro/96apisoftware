@@ -16,6 +16,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import ReportTabs from "./components/report-tabs";
+import type { ReportTabRow, ReportTabsSections } from "./components/report-tabs";
 
 export const metadata: Metadata = {
   title: "Astro Form Report | WowDash Admin Dashboard",
@@ -467,6 +468,790 @@ function buildBhavaDegreeRows(bhavbalData: unknown[], chalit: unknown[]): DataRo
   });
 }
 
+function buildVimshottariSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const dashaList = asArray(chart.vimshottariDasha).map(asObject);
+  if (!dashaList.length) return [];
+
+  const mahaRows: ReportTabRow[] = dashaList.map((item, idx) => ({
+    No: idx + 1,
+    Mahadasha: toDisplay(item.mahadasha),
+    Start: toDisplay(item.start),
+    End: toDisplay(item.end),
+    Duration: toDisplay(item.duration),
+    BalanceStart: toDisplay(item.balance_start),
+    MahaFullYears: toDisplay(item.maha_full_years),
+    MahaRemainingYears: toDisplay(item.maha_remaining_years),
+  }));
+
+  const antarRows: ReportTabRow[] = [];
+  const pratyantarRows: ReportTabRow[] = [];
+
+  dashaList.forEach((md, mdIndex) => {
+    const mdName = toDisplay(md.mahadasha);
+    asArray(md.antar_dashas).map(asObject).forEach((ad, adIndex) => {
+      const adName = toDisplay(ad.antar_dasha);
+      antarRows.push({
+        No: antarRows.length + 1,
+        MahaNo: mdIndex + 1,
+        Mahadasha: mdName,
+        Antardasha: adName,
+        Start: toDisplay(ad.start),
+        End: toDisplay(ad.end),
+        Duration: toDisplay(ad.duration),
+        DurationYears: toDisplay(ad.duration_years),
+        IsBalance: toDisplay(ad.is_balance_antar),
+      });
+
+      asArray(ad.pratyantra_dashas)
+        .map(asObject)
+        .forEach((pd) => {
+          pratyantarRows.push({
+            No: pratyantarRows.length + 1,
+            MahaNo: mdIndex + 1,
+            AntarNo: adIndex + 1,
+            Mahadasha: mdName,
+            Antardasha: adName,
+            Pratyantra: toDisplay(pd.pratyantra_dasha),
+            Start: toDisplay(pd.start),
+            End: toDisplay(pd.end),
+            Duration: toDisplay(pd.duration),
+            DurationYears: toDisplay(pd.duration_years),
+          });
+        });
+    });
+  });
+
+  return [
+    { title: "Mahadasha Timeline", rows: mahaRows },
+    { title: "Antardasha Timeline", rows: antarRows },
+    { title: "Pratyantra Timeline", rows: pratyantarRows },
+  ];
+}
+
+function buildAshtakavargaSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const ashtakavarga = asObject(chart.ashtakavarga);
+  const bhinna = asObject(ashtakavarga.bhinnashtakavarga);
+  const sarva = asObject(ashtakavarga.sarvashtakavarga);
+  const houseLabels = Array.from({ length: 12 }, (_, i) => `H${i + 1}`);
+
+  const bhinnaRows: ReportTabRow[] = Object.entries(bhinna).map(([planet, raw]) => {
+    const item = asObject(raw);
+    const signTotals = asArray(item.sign_totals);
+    const row: ReportTabRow = {
+      Planet: planet,
+      TargetSign: toDisplay(item.target_sign_name),
+      TotalPoints: toDisplay(item.total_points),
+    };
+    houseLabels.forEach((key, idx) => {
+      row[key] = toDisplay(signTotals[idx]);
+    });
+    return row;
+  });
+
+  const bySign = asArray(sarva.by_sign);
+  const perSign = asObject(sarva.per_sign);
+  const sarvaRows: ReportTabRow[] = houseLabels.map((house, idx) => ({
+    House: idx + 1,
+    TotalPoints: toDisplay(bySign[idx]),
+    Sign: toDisplay(Object.keys(perSign)[idx]),
+  }));
+
+  const summaryRows: ReportTabRow[] = [
+    {
+      GrandTotal: toDisplay(sarva.grand_total),
+      AveragePerHouse:
+        toNumber(sarva.grand_total) !== null
+          ? toFixedText((toNumber(sarva.grand_total) as number) / 12)
+          : "-",
+    },
+  ];
+
+  return [
+    { title: "Bhinnashtakavarga (Planet-wise)", rows: bhinnaRows },
+    { title: "Sarvashtakavarga (House-wise)", rows: sarvaRows },
+    { title: "Sarvashtakavarga Summary", rows: summaryRows },
+  ];
+}
+
+function buildYoginiSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const yogini = asObject(chart.yogin_result);
+  const meta = asObject(yogini.meta);
+  const cycles = asObject(yogini.cycles_json);
+
+  const metaRows: ReportTabRow[] = Object.keys(meta).length
+    ? [
+        {
+          StartDasha: toDisplay(meta.start_dasha),
+          Balance: toDisplay(meta.balance),
+          BalanceYears: toDisplay(meta.balance_years),
+          CyclesGenerated: toDisplay(meta.cycles_generated),
+          NakshatraNumber: toDisplay(meta.nakshatra_number),
+          MoonLongitude: toDisplay(meta.moon_longitude),
+        },
+      ]
+    : [];
+
+  const cycleSummaryRows: ReportTabRow[] = [];
+  const mahaRows: ReportTabRow[] = [];
+  const antarRows: ReportTabRow[] = [];
+
+  Object.entries(cycles)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .forEach(([cycleKey, rawCycle], cycleIdx) => {
+      const cycle = asObject(rawCycle);
+      const cycleLabel = toDisplay(cycle.cycle ?? cycleKey);
+      const mdList = asArray(cycle.mahadashas).map(asObject);
+      cycleSummaryRows.push({
+        Cycle: cycleLabel,
+        StartDasha: toDisplay(cycle.start_dasha),
+        Start: toDisplay(cycle.start),
+        End: toDisplay(cycle.end),
+        TotalYears: toDisplay(cycle.total_years_nominal),
+      });
+
+      mdList.forEach((md, mdIdx) => {
+        const mdName = toDisplay(md.mahadasha);
+        mahaRows.push({
+          No: mahaRows.length + 1,
+          Cycle: cycleLabel,
+          MahaNo: mdIdx + 1,
+          Mahadasha: mdName,
+          Lord: toDisplay(md.lord),
+          Start: toDisplay(md.start),
+          End: toDisplay(md.end),
+          Duration: toDisplay(md.duration),
+          DurationDays: toDisplay(md.duration_days),
+        });
+
+        asArray(md.antardashas)
+          .map(asObject)
+          .forEach((ad, adIdx) => {
+            antarRows.push({
+              No: antarRows.length + 1,
+              Cycle: cycleLabel,
+              MahaNo: mdIdx + 1,
+              AntarNo: adIdx + 1,
+              Mahadasha: mdName,
+              Antardasha: toDisplay(ad.antardasha),
+              Lord: toDisplay(ad.lord),
+              Start: toDisplay(ad.start),
+              End: toDisplay(ad.end),
+              Duration: toDisplay(ad.duration),
+            });
+          });
+      });
+    });
+
+  return [
+    { title: "Yogini Meta", rows: metaRows },
+    { title: "Cycle Summary", rows: cycleSummaryRows },
+    { title: "Mahadasha Timeline", rows: mahaRows },
+    { title: "Antardasha Timeline", rows: antarRows },
+  ];
+}
+
+function buildCharaDashaSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const chara = asObject(chart.chara_dasha_jaimini);
+  const mdList = asArray(chara.mahadashas).map(asObject);
+
+  const metaRows: ReportTabRow[] = [
+    {
+      AscSign: toDisplay(chara.asc_sign),
+      AscLord: toDisplay(chara.asc_lord),
+      AscSignIndex: toDisplay(chara.asc_sign_index),
+      AntarRule: toDisplay(chara.antar_rule),
+      BirthDateTime: toDisplay(chara.birth_datetime),
+      Timezone: toDisplay(chara.timezone),
+    },
+  ];
+
+  const mahaRows: ReportTabRow[] = mdList.map((md, idx) => ({
+    No: idx + 1,
+    Sign: toDisplay(md.sign),
+    Start: toDisplay(md.begin),
+    End: toDisplay(md.end),
+    Years: toDisplay(md.years),
+    NinthFromLagna: toDisplay(md.maha_ninth_from_lagna),
+    Orientation: toDisplay(md.maha_order_orientation),
+  }));
+
+  const antarRows: ReportTabRow[] = [];
+  mdList.forEach((md, idx) => {
+    const sign = toDisplay(md.sign);
+    asArray(md.antardashas)
+      .map(asObject)
+      .forEach((ad, adIdx) => {
+        antarRows.push({
+          No: antarRows.length + 1,
+          MahaNo: idx + 1,
+          MahaSign: sign,
+          AntarNo: adIdx + 1,
+          AntarSign: toDisplay(ad.antar_sign),
+          Start: toDisplay(ad.begin),
+          End: toDisplay(ad.end),
+          DurationDays: toDisplay(ad.duration_days),
+          DurationYears: toDisplay(ad.duration_years_equiv),
+          RuleBasis: toDisplay(ad.antar_rule_basis),
+          Orientation: toDisplay(ad.antar_order_orientation),
+        });
+      });
+  });
+
+  return [
+    { title: "Chara Dasha Meta", rows: metaRows },
+    { title: "Mahadasha Timeline", rows: mahaRows },
+    { title: "Antardasha Timeline", rows: antarRows },
+  ];
+}
+
+function buildSthiraDashaSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const sthira = asObject(chart.sthira_dasha);
+  const mdList = asArray(sthira.mahadashas).map(asObject);
+  const metaRows: ReportTabRow[] = [
+    {
+      AscSign: toDisplay(sthira.asc_sign),
+      AscLord: toDisplay(sthira.asc_lord),
+      StartSign: toDisplay(sthira.start_sign),
+      Direction: toDisplay(sthira.direction),
+      BirthDateTime: toDisplay(sthira.birth_datetime),
+      Timezone: toDisplay(sthira.timezone),
+    },
+  ];
+  const mahaRows: ReportTabRow[] = mdList.map((md, idx) => ({
+    No: idx + 1,
+    Sign: toDisplay(md.sign),
+    Start: toDisplay(md.begin),
+    End: toDisplay(md.end),
+    Duration: toDisplay(md.duration),
+    DurationDays: toDisplay(md.duration_days),
+    YearsNominal: toDisplay(md.years_nominal),
+  }));
+  const antarRows: ReportTabRow[] = [];
+  mdList.forEach((md, idx) => {
+    const sign = toDisplay(md.sign);
+    asArray(md.antardashas)
+      .map(asObject)
+      .forEach((ad, adIdx) => {
+        antarRows.push({
+          No: antarRows.length + 1,
+          MahaNo: idx + 1,
+          MahaSign: sign,
+          AntarNo: adIdx + 1,
+          AntarSign: toDisplay(ad.antar_sign),
+          Start: toDisplay(ad.begin),
+          End: toDisplay(ad.end),
+          DurationDays: toDisplay(ad.duration_days),
+        });
+      });
+  });
+  return [
+    { title: "Sthira Dasha Meta", rows: metaRows },
+    { title: "Mahadasha Timeline", rows: mahaRows },
+    { title: "Antardasha Timeline", rows: antarRows },
+  ];
+}
+
+function buildNiryanaShoolaSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const niryana = asObject(chart.niryana_shoola_dasha);
+  const mdList = asArray(niryana.mahadashas).map(asObject);
+  const mahaRows: ReportTabRow[] = mdList.map((md, idx) => ({
+    No: idx + 1,
+    Sign: toDisplay(md.sign),
+    Start: toDisplay(md.begin),
+    End: toDisplay(md.end),
+    Duration: toDisplay(md.duration),
+    DurationDays: toDisplay(md.duration_days),
+    YearsNominal: toDisplay(md.years_nominal),
+    StrongerHouse: toDisplay(md.stronger_house),
+  }));
+  const antarRows: ReportTabRow[] = [];
+  mdList.forEach((md, idx) => {
+    const sign = toDisplay(md.sign);
+    asArray(md.antardashas)
+      .map(asObject)
+      .forEach((ad, adIdx) => {
+        antarRows.push({
+          No: antarRows.length + 1,
+          MahaNo: idx + 1,
+          MahaSign: sign,
+          AntarNo: adIdx + 1,
+          AntarSign: toDisplay(ad.antar_sign),
+          Start: toDisplay(ad.begin),
+          End: toDisplay(ad.end),
+          DurationDays: toDisplay(ad.duration_days),
+          StrongerHouse: toDisplay(ad.stronger_house),
+        });
+      });
+  });
+  return [
+    { title: "Mahadasha Timeline", rows: mahaRows },
+    { title: "Antardasha Timeline", rows: antarRows },
+  ];
+}
+
+function buildThrikonaSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const thrikona = asObject(chart.thrikona_dasha);
+  const meta = asObject(thrikona.meta);
+  const table = asArray(thrikona.table).map(asObject);
+  const order = asArray(thrikona.order).map((o) => toDisplay(o));
+
+  const metaRows: ReportTabRow[] = [
+    {
+      StartSign: toDisplay(meta.start_sign),
+      Direction: toDisplay(meta.direction),
+      Source: toDisplay(meta.source),
+      Order: order.join(" -> "),
+    },
+  ];
+
+  const mahaRows: ReportTabRow[] = table.map((row, idx) => ({
+    No: idx + 1,
+    Sign: toDisplay(row.sign),
+    Start: toDisplay(row.start),
+    End: toDisplay(row.end),
+    Years: toDisplay(row.years),
+  }));
+
+  const antarRows: ReportTabRow[] = [];
+  table.forEach((md, idx) => {
+    const sign = toDisplay(md.sign);
+    asArray(md.antardasha)
+      .map(asObject)
+      .forEach((ad, adIdx) => {
+        antarRows.push({
+          No: antarRows.length + 1,
+          MahaNo: idx + 1,
+          MahaSign: sign,
+          AntarNo: adIdx + 1,
+          AntarSign: toDisplay(ad.sign),
+          Start: toDisplay(ad.start),
+          End: toDisplay(ad.end),
+          Years: toDisplay(ad.years),
+        });
+      });
+  });
+
+  return [
+    { title: "Thrikona Dasha Meta", rows: metaRows },
+    { title: "Mahadasha Timeline", rows: mahaRows },
+    { title: "Antardasha Timeline", rows: antarRows },
+  ];
+}
+
+function buildAshtottariSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const ashtottari = asObject(chart.ashtottari_dasha);
+  if (!Object.keys(ashtottari).length) return [];
+
+  const metaRows: ReportTabRow[] = [
+    {
+      Eligible: toDisplay(ashtottari.eligible),
+      StartLord: toDisplay(ashtottari.start_lord),
+      Group: toDisplay(ashtottari.group),
+      FirstBalanceYears: toDisplay(ashtottari.first_balance_years),
+      Lagna: toDisplay(ashtottari.lagna),
+      Moon: toDisplay(ashtottari.moon),
+      Rahu: toDisplay(ashtottari.rahu),
+      Reasons: toDisplay(ashtottari.reasons),
+    },
+  ];
+
+  const mahaRows = asArray(ashtottari.mahadashas).map(asObject).map((row, idx) => ({
+    No: idx + 1,
+    Level: toDisplay(row.level),
+    Lord: toDisplay(row.lord),
+    Start: toDisplay(row.start_utc),
+    End: toDisplay(row.end_utc),
+    Years: toDisplay(row.years),
+  }));
+
+  const antarRows = asArray(ashtottari.antardashas).map(asObject).map((row, idx) => ({
+    No: idx + 1,
+    Level: toDisplay(row.level),
+    Parent: toDisplay(row.parent),
+    Lord: toDisplay(row.lord),
+    Start: toDisplay(row.start_utc),
+    End: toDisplay(row.end_utc),
+    Years: toDisplay(row.years),
+  }));
+
+  return [
+    { title: "Ashtottari Meta", rows: metaRows },
+    { title: "Mahadasha Timeline", rows: mahaRows },
+    { title: "Antardasha Timeline", rows: antarRows },
+  ];
+}
+
+function buildMuddaSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const mudda = asObject(chart.mudda_dasha);
+  if (!Object.keys(mudda).length) return [];
+  const meta = asObject(mudda.meta);
+
+  const summaryRows: ReportTabRow[] = [
+    {
+      Year: toDisplay(mudda.year),
+      Start: toDisplay(mudda.start),
+      End: toDisplay(mudda.end),
+      RunningVimMD: toDisplay(meta.running_vim_md),
+      RunningVimAD: toDisplay(meta.running_vim_ad),
+      ResolveMethod: toDisplay(meta.md_resolve_method),
+      UsedSolarReturn: toDisplay(meta.used_solar_return),
+      ApproximateSolarReturn: toDisplay(meta.approximate_solar_return),
+    },
+  ];
+
+  const periods = asArray(mudda.periods).map(asObject);
+  const periodRows: ReportTabRow[] = periods.map((row, idx) => ({
+    No: idx + 1,
+    Lord: toDisplay(row.lord),
+    Start: toDisplay(row.start),
+    End: toDisplay(row.end),
+    Days: toDisplay(row.days),
+  }));
+
+  const antarRows: ReportTabRow[] = [];
+  periods.forEach((period, periodIdx) => {
+    const lord = toDisplay(period.lord);
+    asArray(period.antardasha)
+      .map(asObject)
+      .forEach((ad, adIdx) => {
+        antarRows.push({
+          No: antarRows.length + 1,
+          PeriodNo: periodIdx + 1,
+          PeriodLord: lord,
+          AntarNo: adIdx + 1,
+          Lord: toDisplay(ad.lord),
+          Start: toDisplay(ad.start),
+          End: toDisplay(ad.end),
+          Days: toDisplay(ad.days),
+        });
+      });
+  });
+
+  return [
+    { title: "Mudda Dasha Summary", rows: summaryRows },
+    { title: "Mudda Periods", rows: periodRows },
+    { title: "Mudda Antardasha", rows: antarRows },
+  ];
+}
+
+function buildUpagrahaSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const upagraha = asObject(chart.upagraha_result);
+  if (!Object.keys(upagraha).length) return [];
+  const rows: ReportTabRow[] = Object.entries(upagraha).map(([name, raw]) => {
+    const item = asObject(raw);
+    return {
+      Name: name,
+      Sign: toDisplay(item.sign),
+      SignIndex: toDisplay(item.sign_index),
+      Longitude: toDisplay(item.lon),
+      Deg: toDisplay(item.deg),
+      Min: toDisplay(item.min),
+      Sec: toDisplay(item.sec),
+    };
+  });
+  return [{ title: "Upagraha Details", rows }];
+}
+
+function buildChartsSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const rows: ReportTabRow[] = Object.entries(chart)
+    .filter(([key]) => key.endsWith("_chart"))
+    .map(([key, raw]) => {
+      if (Array.isArray(raw)) {
+        return {
+          Chart: toTitle(key),
+          Type: "House Data",
+          HasImage: "No",
+          Rows: raw.length,
+        };
+      }
+      const item = asObject(raw);
+      return {
+        Chart: toTitle(key),
+        Type: "Image + House Data",
+        HasImage: item.base64_image ? "Yes" : "No",
+        Rows: asArray(item.data).length,
+      };
+    });
+
+  const d1 = asObject(chart.d1_lagna_chart);
+  const d1Rows = asArray(d1.data).map(asObject).map((row) => ({
+    House: toDisplay(row.house),
+    Sign: toDisplay(row.sign),
+    SignNo: toDisplay(row.sign_no),
+    Planets: asArray(row.planets)
+      .map((p) => toDisplay(asObject(p).name))
+      .join(", ") || "-",
+  }));
+
+  return [
+    { title: "Available Chart Images", rows },
+    { title: "D1 Lagna Chart Houses", rows: d1Rows },
+  ];
+}
+
+function buildKundliKarakSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const karakRows = asArray(chart.kundli_karak).map(asObject).map((row, idx) => ({
+    No: idx + 1,
+    Karaka: toDisplay(row.karaka),
+    Chara: toDisplay(row.chara),
+    Sthir: toDisplay(row.sthir),
+    DegreeWithinSign: toDisplay(row.degree_within_sign),
+    TotalLongitude: toDisplay(row.total_longitude),
+  }));
+
+  const avasthaRows = Object.entries(asObject(chart.kundli_avastha)).map(([planet, raw]) => {
+    const item = asObject(raw);
+    return {
+      Planet: planet,
+      Sign: toDisplay(item.sign),
+      Degree: toDisplay(item.degree),
+      Nakshatra: toDisplay(item.nakshatra),
+      Baladi: toDisplay(item.baladi),
+      Deeptadi: toDisplay(item.deeptadi),
+      Jagrut: toDisplay(item.jagrut),
+      GradeOfResults: toDisplay(item.grade_of_results),
+    };
+  });
+
+  return [
+    { title: "Kundli Karak", rows: karakRows },
+    { title: "Kundli Avastha", rows: avasthaRows },
+  ];
+}
+
+function buildChalitSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const chalitRows = asArray(chart.chalit).map(asObject).map((row) => ({
+    Bhav: toDisplay(row.Bhav),
+    BhavBegin: toDisplay(row.BhavBegin),
+    MidBhav: toDisplay(row.MidBhav),
+    RashiBegin: toDisplay(row.RashiBegin),
+    RashiMid: toDisplay(row.RashiMid),
+  }));
+  return [{ title: "Chalit Details", rows: chalitRows }];
+}
+
+function buildChandraKundliSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const rows = Object.entries(asObject(chart.chandra_kundali)).map(([planet, raw]) => {
+    const item = asObject(raw);
+    return {
+      Planet: planet,
+      ChandraHouse: toDisplay(item.chandra_house),
+      Sign: toDisplay(item.sign),
+      Degree: toDisplay(item.degree),
+      Nakshatra: toDisplay(item.nakshatra),
+    };
+  });
+  return [{ title: "Chandra Kundli Details", rows }];
+}
+
+function buildAvakhadaSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const avakhada = asObject(chart.avakhada_chakra);
+  if (!Object.keys(avakhada).length) return [];
+
+  const positions = Object.entries(asObject(avakhada.avakhada_positions)).map(([planet, raw]) => {
+    const item = asObject(raw);
+    return {
+      Planet: planet,
+      AvakhadaHouse: toDisplay(item.avakhada_house),
+      OriginalHouse: toDisplay(item.original_house),
+      OriginalSign: toDisplay(item.original_sign),
+      Degree: toDisplay(item.degree),
+      Nakshatra: toDisplay(item.nakshatra),
+      Pada: toDisplay(item.pada),
+      Retro: toDisplay(item.retro),
+      Combust: toDisplay(item.combust),
+    };
+  });
+
+  const houseSigns = Object.entries(asObject(avakhada.house_signs))
+    .sort(([a], [b]) => Number(a) - Number(b))
+    .map(([house, sign]) => ({
+      House: house,
+      Sign: toDisplay(sign),
+      Occupants: asArray(asObject(avakhada.house_occupancy)[house]).map(toDisplay).join(", ") || "-",
+    }));
+
+  return [
+    { title: "Avakhada Positions", rows: positions },
+    { title: "House Mapping", rows: houseSigns },
+  ];
+}
+
+function buildCharaKarkamshaSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const cks = asObject(chart.chara_karkamsha_swamsha);
+  if (!Object.keys(cks).length) return [];
+
+  const summaryRows: ReportTabRow[] = [
+    {
+      AK: toDisplay(cks.ak),
+      AKDebug: toDisplay(cks.ak_debug),
+      AscSign: toDisplay(cks.asc_sign),
+      KarkamshaSign: toDisplay(cks.karkamsha_sign),
+      SwamshaSign: toDisplay(cks.swamsha_sign),
+      ArudhaLagnaSign: toDisplay(cks.arudha_lagna_sign),
+      UpapadaSign: toDisplay(cks.upapada_sign),
+    },
+  ];
+
+  const longitudeRows = Object.entries(asObject(cks.longitudes)).map(([planet, value]) => ({
+    Planet: planet,
+    Longitude: toDisplay(value),
+  }));
+
+  return [
+    { title: "Chara Karkamsha Swamsha Summary", rows: summaryRows },
+    { title: "Planetary Longitudes", rows: longitudeRows },
+  ];
+}
+
+function buildDrekkanaSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const drekk = asObject(chart.drekkana_result);
+  if (!Object.keys(drekk).length) return [];
+  const rows = Object.entries(drekk).map(([key, raw]) => {
+    const item = asObject(raw);
+    const d3 = asObject(item.d3);
+    const d3_22 = asObject(item.d3_22nd);
+    return {
+      Point: key,
+      RasiSign: toDisplay(item.rasi_sign),
+      DegInSign: toDisplay(item.deg_in_sign),
+      D3Sign: toDisplay(d3.sign),
+      D3Lord: toDisplay(d3.lord),
+      D322Sign: toDisplay(d3_22.sign),
+      D322Lord: toDisplay(d3_22.lord),
+    };
+  });
+  return [{ title: "Drekkana Result", rows }];
+}
+
+function buildVarshaPhalSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const candidates = ["varsha_phal", "varsha_phal", "varsha_phal_overview", "varshaPhal"];
+  for (const key of candidates) {
+    const v = chart[key];
+    if (Array.isArray(v)) {
+      const rows = v.map(asObject).map((row, idx) => ({ No: idx + 1, ...row })) as ReportTabRow[];
+      return [{ title: "Varsha Phal Overview", rows }];
+    }
+    if (isObject(v)) {
+      const rows = Object.entries(v).map(([k, val]) => ({ Field: toTitle(k), Value: toDisplay(val) }));
+      return [{ title: "Varsha Phal Overview", rows }];
+    }
+  }
+  return [];
+}
+
+function buildLagnaSahamSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const ls = asObject(chart.lagna_saham);
+  if (!Object.keys(ls).length) return [];
+
+  const summaryRows: ReportTabRow[] = [
+    {
+      AscendantLongitude: toDisplay(ls.ascendant),
+      IsDayChart: toDisplay(ls.is_day_chart),
+      SahamCount: Object.keys(asObject(ls.sahams)).length,
+    },
+  ];
+
+  const sahamsRows = Object.entries(asObject(ls.sahams_detail)).map(([name, raw]) => {
+    const item = asObject(raw);
+    return {
+      Saham: name,
+      Longitude: toDisplay(item.longitude),
+      DMS: toDisplay(item.dms),
+      Sign: toDisplay(item.sign),
+      SignLord: toDisplay(item.sign_lord),
+      SignLordAbbr: toDisplay(item.sign_lord_abbr),
+    };
+  });
+
+  const cuspRows = Object.entries(asObject(ls.house_cusps))
+    .sort(([a], [b]) => Number(a) - Number(b))
+    .map(([house, value]) => ({
+      House: house,
+      CuspLongitude: toDisplay(value),
+    }));
+
+  return [
+    { title: "Lagna Saham Summary", rows: summaryRows },
+    { title: "Saham Details", rows: sahamsRows },
+    { title: "House Cusps", rows: cuspRows },
+  ];
+}
+
+function buildSadeSatiSections(chart: DataMap): Array<{ title: string; rows: ReportTabRow[] }> {
+  const sade = asObject(chart.sade_sati);
+  if (!Object.keys(sade).length) return [];
+
+  const summaryRows: ReportTabRow[] = [
+    {
+      BirthYear: toDisplay(sade.birth_year),
+      MoonRasi: toDisplay(sade.moon_rasi),
+      MoonRasiNo: toDisplay(sade.moon_rasi_no),
+      MoonLongitude: toDisplay(sade.moon_longitude),
+      ScanStartYear: toDisplay(sade.scan_start_year),
+      ScanEndYear: toDisplay(sade.scan_end_year),
+      SmallPanotiThresholdDays: toDisplay(sade.small_panoti_threshold_days),
+    },
+  ];
+
+  const periodRows = asArray(sade.sade_sati_periods).map(asObject).map((row, idx) => ({
+    No: idx + 1,
+    Phase: toDisplay(row.phase),
+    SaturnSign: toDisplay(row.saturn_sign),
+    TransitMoonRasi: toDisplay(row.transit_moon_rasi),
+    MurtiType: toDisplay(row.murti_type),
+    Element: toDisplay(row.element),
+    Auspicious: toDisplay(row.is_auspicious),
+    Start: toDisplay(row.start),
+    End: toDisplay(row.end),
+    DurationDays: toDisplay(row.duration_days),
+    Note: toDisplay(row.note),
+  }));
+
+  const degreeRows = asArray(sade.sade_sati_by_degree).map(asObject).map((row, idx) => ({
+    No: idx + 1,
+    Note: toDisplay(row.note),
+    Start: toDisplay(row.start),
+    End: toDisplay(row.end),
+    DurationDays: toDisplay(row.duration_days),
+    StartLongitude: toDisplay(row.katwe_start_longitude),
+    EndLongitude: toDisplay(row.katwe_end_longitude),
+    CenterMoonLongitude: toDisplay(row.katwe_center_moon_longitude),
+  }));
+
+  return [
+    { title: "Sade Sati Summary", rows: summaryRows },
+    { title: "Sade Sati Periods", rows: periodRows },
+    { title: "Degree Based Sade Sati", rows: degreeRows },
+  ];
+}
+
+function buildKpSections(chart: DataMap, title: string): Array<{ title: string; rows: ReportTabRow[] }> {
+  const kp = asObject(chart.kp_chart);
+  if (!Object.keys(kp).length) return [];
+
+  const summaryRows: ReportTabRow[] = [
+    {
+      HasChartImage: kp.base64_image ? "Yes" : "No",
+      Houses: asArray(kp.data).length,
+    },
+  ];
+
+  const rows = asArray(kp.data).map(asObject).map((row) => ({
+    House: toDisplay(row.house),
+    Sign: toDisplay(row.sign),
+    SignNo: toDisplay(row.sign_no),
+    Planets: asArray(row.planets)
+      .map((p) => toDisplay(asObject(p).name))
+      .join(", ") || "-",
+  }));
+
+  return [
+    { title: `${title} Summary`, rows: summaryRows },
+    { title: `${title} Houses`, rows },
+  ];
+}
+
 const DataTable = ({
   title,
   rows,
@@ -585,6 +1370,30 @@ const AstroFormReportPage = async ({ params }: PageProps) => {
     asObject(chart.get_full_planet_positions)
   );
   const bhavaDegreeRows = buildBhavaDegreeRows(asArray(chart.bhavbal_data), asArray(chart.chalit));
+  const tabSections: ReportTabsSections = {
+    "vimshottari-dasha": buildVimshottariSections(chart),
+    ashtakavarga: buildAshtakavargaSections(chart),
+    "yogini-dasha": buildYoginiSections(chart),
+    "chara-dasha": buildCharaDashaSections(chart),
+    "sthira-dasha": buildSthiraDashaSections(chart),
+    "niryana-shoola-dasha": buildNiryanaShoolaSections(chart),
+    "thrikona-dasha": buildThrikonaSections(chart),
+    "ashtottari-dasha": buildAshtottariSections(chart),
+    "mudda-dasha": buildMuddaSections(chart),
+    upagraha: buildUpagrahaSections(chart),
+    charts: buildChartsSections(chart),
+    "kundli-karak-details": buildKundliKarakSections(chart),
+    "chalit-details": buildChalitSections(chart),
+    "chandra-kundli-details": buildChandraKundliSections(chart),
+    "avakhada-chakra-details": buildAvakhadaSections(chart),
+    "chara-karkamsha-swamsha": buildCharaKarkamshaSections(chart),
+    drekkana: buildDrekkanaSections(chart),
+    "varsha-phal": buildVarshaPhalSections(chart),
+    "lagna-saham": buildLagnaSahamSections(chart),
+    "sade-sati": buildSadeSatiSections(chart),
+    "kp-page": buildKpSections(chart, "KP Page"),
+    "kp-horary-page": buildKpSections(chart, "KP Horary"),
+  };
 
   return (
     <>
@@ -742,7 +1551,7 @@ const AstroFormReportPage = async ({ params }: PageProps) => {
           </Card>
         ) : null}
         <DataTable title="Bhava Degrees Table" rows={bhavaDegreeRows} greenHead />
-        <ReportTabs />
+        <ReportTabs sections={tabSections} />
       </div>
     </>
   );
