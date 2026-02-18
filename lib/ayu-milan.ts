@@ -104,9 +104,6 @@ function toPersonPayload(input: {
 }
 
 export function buildAyuMilanPayload(values: AyuMilanSchemaType): AyuMilanApiPayload {
-  const chartStyle = process.env.AYU_MILAN_CHART_STYLE || "North Indian";
-  const kpHorary = Number.parseInt(process.env.AYU_MILAN_KP_HORARY_NUMBER || "0", 10);
-
   return {
     boy_data: toPersonPayload({
       name: values.boyName,
@@ -120,8 +117,10 @@ export function buildAyuMilanPayload(values: AyuMilanSchemaType): AyuMilanApiPay
       longitudeDir: values.boyLongitudeDir,
       timezoneOffset: values.boyTimezoneOffset,
       gender: process.env.AYU_MILAN_BOY_GENDER || "Male",
-      chartStyle,
-      kpHoraryNumber: Number.isNaN(kpHorary) ? 0 : kpHorary,
+      chartStyle: values.boyChartStyle,
+      kpHoraryNumber: Number.isNaN(Number.parseInt(values.boyKpHoraryNumber, 10))
+        ? 0
+        : Number.parseInt(values.boyKpHoraryNumber, 10),
       prefix: "Boy",
     }),
     girl_data: toPersonPayload({
@@ -136,8 +135,10 @@ export function buildAyuMilanPayload(values: AyuMilanSchemaType): AyuMilanApiPay
       longitudeDir: values.girlLongitudeDir,
       timezoneOffset: values.girlTimezoneOffset,
       gender: process.env.AYU_MILAN_GIRL_GENDER || "Female",
-      chartStyle,
-      kpHoraryNumber: Number.isNaN(kpHorary) ? 0 : kpHorary,
+      chartStyle: values.girlChartStyle,
+      kpHoraryNumber: Number.isNaN(Number.parseInt(values.girlKpHoraryNumber, 10))
+        ? 0
+        : Number.parseInt(values.girlKpHoraryNumber, 10),
       prefix: "Girl",
     }),
   };

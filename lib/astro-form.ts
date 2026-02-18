@@ -67,8 +67,7 @@ function toApiGender(gender: AstroFormSchemaType["gender"]): string {
 
 export function buildAstroFormPayload(values: AstroFormSchemaType): AstroFormApiPayload {
   const birth = parseBirthParts(values.birthDate, values.birthTime);
-  const chartStyle = process.env.LIFE_CALCULATOR_CHART_STYLE || "North Indian";
-  const kpHoraryNumber = Number.parseInt(process.env.LIFE_CALCULATOR_KP_HORARY_NUMBER || "145", 10);
+  const kpHoraryNumber = Number.parseInt(values.kpHoraryNumber, 10);
 
   return {
     name: values.name,
@@ -86,7 +85,7 @@ export function buildAstroFormPayload(values: AstroFormSchemaType): AstroFormApi
     latitude_min: parseInteger(values.latitudeMin, "Latitude minute"),
     latitude_dir: values.latitudeDir,
     timezone: parseDecimal(values.timezoneOffset, "Timezone offset"),
-    chart_style: chartStyle,
+    chart_style: values.chartStyle,
     kp_horary_number: Number.isNaN(kpHoraryNumber) ? 145 : kpHoraryNumber,
   };
 }
@@ -94,4 +93,3 @@ export function buildAstroFormPayload(values: AstroFormSchemaType): AstroFormApi
 export function toBirthDateAtUtcMidnight(birthDate: string): Date {
   return new Date(`${birthDate}T00:00:00.000Z`);
 }
-

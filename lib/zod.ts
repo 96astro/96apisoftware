@@ -84,6 +84,13 @@ export const lifeCalculatorSchema = z.object({
   longitudeMin: z.string().min(1, "Longitude minute is required"),
   longitudeDir: z.enum(["E", "W"], { required_error: "Longitude direction is required" }),
   timezoneOffset: z.string().min(1, "Timezone is required"),
+  chartStyle: z.enum(["North Indian", "South Indian"], {
+    required_error: "Chart style is required",
+  }),
+  kpHoraryNumber: z
+    .string()
+    .min(1, "KP Horary Number is required")
+    .regex(/^\d+$/, "KP Horary Number must be numeric"),
   birthDate: z.string().min(1, "Birth Date is required"),
   birthTime: z.string().min(1, "Birth Time is required"),
 });
@@ -103,6 +110,13 @@ export const astroFormSchema = z.object({
   longitudeMin: z.string().min(1, "Longitude minute is required"),
   longitudeDir: z.enum(["E", "W"], { required_error: "Longitude direction is required" }),
   timezoneOffset: z.string().min(1, "Timezone is required"),
+  chartStyle: z.enum(["North Indian", "South Indian"], {
+    required_error: "Chart style is required",
+  }),
+  kpHoraryNumber: z
+    .string()
+    .min(1, "KP Horary Number is required")
+    .regex(/^\d+$/, "KP Horary Number must be numeric"),
   birthDate: z.string().min(1, "Birth Date is required"),
   birthTime: z.string().min(1, "Birth Time is required"),
 });
@@ -121,6 +135,13 @@ export const ayuMilanSchema = z.object({
   boyLongitudeMin: z.string().min(1, "Boy Longitude minute is required"),
   boyLongitudeDir: z.enum(["E", "W"], { required_error: "Boy Longitude direction is required" }),
   boyTimezoneOffset: z.string().min(1, "Boy Timezone is required"),
+  boyChartStyle: z.enum(["North Indian", "South Indian"], {
+    required_error: "Boy Chart style is required",
+  }),
+  boyKpHoraryNumber: z
+    .string()
+    .min(1, "Boy KP Horary Number is required")
+    .regex(/^\d+$/, "Boy KP Horary Number must be numeric"),
   girlName: z.string().min(1, "Girl Name is required"),
   girlBirthDate: z.string().min(1, "Girl Birth Date is required"),
   girlBirthTime: z.string().min(1, "Girl Birth Time is required"),
@@ -132,6 +153,13 @@ export const ayuMilanSchema = z.object({
   girlLongitudeMin: z.string().min(1, "Girl Longitude minute is required"),
   girlLongitudeDir: z.enum(["E", "W"], { required_error: "Girl Longitude direction is required" }),
   girlTimezoneOffset: z.string().min(1, "Girl Timezone is required"),
+  girlChartStyle: z.enum(["North Indian", "South Indian"], {
+    required_error: "Girl Chart style is required",
+  }),
+  girlKpHoraryNumber: z
+    .string()
+    .min(1, "Girl KP Horary Number is required")
+    .regex(/^\d+$/, "Girl KP Horary Number must be numeric"),
 });
 
 export type AyuMilanSchemaType = z.infer<typeof ayuMilanSchema>;

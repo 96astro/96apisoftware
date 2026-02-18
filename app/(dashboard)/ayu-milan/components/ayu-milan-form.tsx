@@ -19,6 +19,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { AyuMilanSchemaType, ayuMilanSchema } from "@/lib/zod";
 
 const req = <span className="text-red-600">*</span>;
@@ -41,6 +48,8 @@ const AyuMilanForm = () => {
       boyLongitudeMin: "",
       boyLongitudeDir: "E",
       boyTimezoneOffset: "",
+      boyChartStyle: "North Indian",
+      boyKpHoraryNumber: "145",
       girlName: "",
       girlBirthDate: "",
       girlBirthTime: "",
@@ -52,6 +61,8 @@ const AyuMilanForm = () => {
       girlLongitudeMin: "",
       girlLongitudeDir: "E",
       girlTimezoneOffset: "",
+      girlChartStyle: "North Indian",
+      girlKpHoraryNumber: "145",
     },
   });
 
@@ -86,22 +97,6 @@ const AyuMilanForm = () => {
       setIsSubmitting(false);
     }
   };
-
-  const boyLatitudeDeg = form.watch("boyLatitudeDeg");
-  const boyLatitudeMin = form.watch("boyLatitudeMin");
-  const boyLatitudeDir = form.watch("boyLatitudeDir");
-  const boyLongitudeDeg = form.watch("boyLongitudeDeg");
-  const boyLongitudeMin = form.watch("boyLongitudeMin");
-  const boyLongitudeDir = form.watch("boyLongitudeDir");
-  const boyTimezoneOffset = form.watch("boyTimezoneOffset");
-
-  const girlLatitudeDeg = form.watch("girlLatitudeDeg");
-  const girlLatitudeMin = form.watch("girlLatitudeMin");
-  const girlLatitudeDir = form.watch("girlLatitudeDir");
-  const girlLongitudeDeg = form.watch("girlLongitudeDeg");
-  const girlLongitudeMin = form.watch("girlLongitudeMin");
-  const girlLongitudeDir = form.watch("girlLongitudeDir");
-  const girlTimezoneOffset = form.watch("girlTimezoneOffset");
 
   return (
     <Form {...form}>
@@ -188,16 +183,148 @@ const AyuMilanForm = () => {
               )}
             />
 
-            <div className="text-base text-neutral-800 dark:text-neutral-100">
-              <p>
-                Latitude: {boyLatitudeDeg || "--"} deg {boyLatitudeMin || "--"}&apos; {boyLatitudeDir || "-"}
-              </p>
-              <p>
-                Longitude: {boyLongitudeDeg || "--"} deg {boyLongitudeMin || "--"}&apos; {boyLongitudeDir || "-"}
-              </p>
-              <p>
-                Timezone: UTC{boyTimezoneOffset ? (Number(boyTimezoneOffset) >= 0 ? "+" : "") + boyTimezoneOffset : "--"}
-              </p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="boyLatitudeDeg"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Latitude Deg {req}</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Latitude degree" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="boyLatitudeMin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Latitude Min {req}</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Latitude minute" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="boyLatitudeDir"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Latitude Dir {req}</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select Latitude Dir" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="N">N</SelectItem>
+                        <SelectItem value="S">S</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="boyLongitudeDeg"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Longitude Deg {req}</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Longitude degree" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="boyLongitudeMin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Longitude Min {req}</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Longitude minute" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="boyLongitudeDir"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Longitude Dir {req}</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select Longitude Dir" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="E">E</SelectItem>
+                        <SelectItem value="W">W</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="boyTimezoneOffset"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Timezone {req}</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="e.g. 5.5" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="boyChartStyle"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Chart Style {req}</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select Chart Style" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="North Indian">North Indian</SelectItem>
+                        <SelectItem value="South Indian">South Indian</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="boyKpHoraryNumber"
+                render={({ field }) => (
+                  <FormItem className="sm:col-span-2">
+                    <FormLabel>KP Horary Number {req}</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="KP Horary Number" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
           </div>
 
@@ -280,16 +407,148 @@ const AyuMilanForm = () => {
               )}
             />
 
-            <div className="text-base text-neutral-800 dark:text-neutral-100">
-              <p>
-                Latitude: {girlLatitudeDeg || "--"} deg {girlLatitudeMin || "--"}&apos; {girlLatitudeDir || "-"}
-              </p>
-              <p>
-                Longitude: {girlLongitudeDeg || "--"} deg {girlLongitudeMin || "--"}&apos; {girlLongitudeDir || "-"}
-              </p>
-              <p>
-                Timezone: UTC{girlTimezoneOffset ? (Number(girlTimezoneOffset) >= 0 ? "+" : "") + girlTimezoneOffset : "--"}
-              </p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="girlLatitudeDeg"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Latitude Deg {req}</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Latitude degree" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="girlLatitudeMin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Latitude Min {req}</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Latitude minute" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="girlLatitudeDir"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Latitude Dir {req}</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select Latitude Dir" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="N">N</SelectItem>
+                        <SelectItem value="S">S</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="girlLongitudeDeg"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Longitude Deg {req}</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Longitude degree" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="girlLongitudeMin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Longitude Min {req}</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Longitude minute" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="girlLongitudeDir"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Longitude Dir {req}</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select Longitude Dir" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="E">E</SelectItem>
+                        <SelectItem value="W">W</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="girlTimezoneOffset"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Timezone {req}</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="e.g. 5.5" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="girlChartStyle"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Chart Style {req}</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select Chart Style" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="North Indian">North Indian</SelectItem>
+                        <SelectItem value="South Indian">South Indian</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="girlKpHoraryNumber"
+                render={({ field }) => (
+                  <FormItem className="sm:col-span-2">
+                    <FormLabel>KP Horary Number {req}</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="KP Horary Number" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
           </div>
         </div>
