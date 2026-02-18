@@ -110,6 +110,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         };
       }
 
+      if (item.title === "Edit" && reportId) {
+        return {
+          ...item,
+          items: [
+            {
+              title: "Edit Chart",
+              url: `/astro-form/reports/${reportId}/edit-chart`,
+            },
+          ],
+        };
+      }
+
       return item;
     });
     return withDetails;

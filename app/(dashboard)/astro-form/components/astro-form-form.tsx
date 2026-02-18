@@ -29,7 +29,23 @@ import { astroFormSchema, AstroFormSchemaType } from "@/lib/zod";
 
 const req = <span className="text-red-600">*</span>;
 
-const AstroFormForm = () => {
+type AstroFormFormProps = {
+  initialValues?: Partial<AstroFormSchemaType>;
+  submitUrl?: string;
+  submitButtonText?: string;
+  pendingButtonText?: string;
+  successMessage?: string;
+  successRedirectPath?: string;
+};
+
+const AstroFormForm = ({
+  initialValues,
+  submitUrl = "/api/astro-form",
+  submitButtonText = "Submit",
+  pendingButtonText = "Submitting...",
+  successMessage = "Report generated successfully.",
+  successRedirectPath,
+}: AstroFormFormProps) => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -50,14 +66,17 @@ const AstroFormForm = () => {
       kpHoraryNumber: "145",
       birthDate: "",
       birthTime: "",
+      ...initialValues,
     },
   });
 
   const onSubmit = async (values: AstroFormSchemaType) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/astro-form", {
-        method: "POST",
+      const requestMethod = submitUrl.includes("/api/astro-form/") ? "PUT" : "POST";
+
+      const response = await fetch(submitUrl, {
+        method: requestMethod,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
@@ -72,8 +91,8 @@ const AstroFormForm = () => {
         return;
       }
 
-      toast.success("Report generated successfully.");
-      router.push(`/astro-form/reports/${result.reportId}`);
+      toast.success(successMessage);
+      router.push(successRedirectPath || `/astro-form/reports/${result.reportId}`);
       router.refresh();
     } catch {
       toast.error("Something went wrong while generating the report.");
@@ -337,7 +356,7 @@ const AstroFormForm = () => {
         <div className="pt-2 md:col-span-2 xl:col-span-3">
           <div className="flex flex-wrap items-center gap-3">
             <Button type="submit" className="h-11 px-8" disabled={isSubmitting}>
-              {isSubmitting ? "Submitting..." : "Submit"}
+              {isSubmitting ? pendingButtonText : submitButtonText}
             </Button>
             <Button type="button" variant="outline" asChild>
               <Link href="/astro-form/reports">View Reports</Link>
