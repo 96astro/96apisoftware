@@ -2,6 +2,7 @@
 type ProfileData = {
     name: string;
     email: string;
+    image: string;
     phoneCountryCode: string;
     phone: string;
     department: string;
@@ -16,7 +17,7 @@ const ViewProfileSidebar = ({ profile }: { profile: ProfileData }) => {
             <img src="assets/images/user-grid/user-grid-bg1.png" alt="" className="w-full object-fit-cover" />
             <div className="pb-6 ms-6 mb-6 me-6 -mt-[100px]">
                 <div className="text-center border-b border-slate-200 dark:border-slate-600">
-                    <img src="assets/images/user-grid/user-grid-img14.png" alt="" className="border br-white border-width-2-px w-200-px h-[200px] rounded-full object-fit-cover mx-auto" />
+                    <img src={profile.image || "assets/images/user-grid/user-grid-img14.png"} alt="" className="border br-white border-width-2-px w-200-px h-[200px] rounded-full object-fit-cover mx-auto" />
                     <h6 className="mb-0 mt-4">{profile.name || "N/A"}</h6>
                     <span className="text-neutral-500 dark:text-neutral-300 mb-4">{profile.email || "N/A"}</span>
                 </div>

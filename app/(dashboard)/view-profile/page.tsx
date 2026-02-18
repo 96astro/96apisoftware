@@ -34,6 +34,7 @@ const ViewProfile = async ({ searchParams }: ViewProfilePageProps) => {
         select: {
             name: true,
             email: true,
+            image: true,
             phoneCountryCode: true,
             phone: true,
             department: true,
@@ -65,6 +66,7 @@ const ViewProfile = async ({ searchParams }: ViewProfilePageProps) => {
     const profile = {
         name: user?.name ?? "",
         email: user?.email ?? "",
+        image: user?.image ?? "",
         phoneCountryCode: user?.phoneCountryCode ?? "+91",
         phone: user?.phone ?? "",
         department: user?.department ?? "",

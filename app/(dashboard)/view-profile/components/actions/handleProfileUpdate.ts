@@ -26,6 +26,8 @@ export async function handleProfileUpdate(formData: FormData) {
 
   const name = formData.get('name')?.toString().trim() ?? "";
   const email = formData.get('email')?.toString().trim().toLowerCase() ?? "";
+  const profileImageRaw = formData.get("profileImageData")?.toString().trim() ?? "";
+  const profileImage = profileImageRaw || null;
   const phoneCountryCodeRaw = formData.get('phoneCountryCode')?.toString().trim() || "+91";
   const phoneCountryCode = /^\+\d{1,4}$/.test(phoneCountryCodeRaw) ? phoneCountryCodeRaw : "+91";
   const phone = formData.get('number')?.toString().trim() || null;
@@ -59,6 +61,7 @@ export async function handleProfileUpdate(formData: FormData) {
       data: {
         name,
         email,
+        image: profileImage,
         phoneCountryCode,
         phone,
         department,

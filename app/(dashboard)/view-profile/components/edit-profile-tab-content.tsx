@@ -17,6 +17,7 @@ const CountryCodeCombobox = dynamic(
 type ProfileData = {
     name: string;
     email: string;
+    image: string;
     phoneCountryCode: string;
     phone: string;
     department: string;
@@ -38,15 +39,17 @@ type ProfileData = {
 
 const EditProfileTabContent = ({ profile }: { profile: ProfileData }) => {
     const [countryCode, setCountryCode] = React.useState(profile.phoneCountryCode || "+91");
+    const [profileImage, setProfileImage] = React.useState(profile.image || "");
 
     return (
         <div>
             <h6 className="text-base text-neutral-600 dark:text-neutral-200 mb-4">Profile Image</h6>
             <div className="mb-6 mt-4">
-                <AvatarUpload />
+                <AvatarUpload initialImage={profile.image} onImageChange={setProfileImage} />
             </div>
 
             <form action={handleProfileUpdate}>
+                <input type="hidden" name="profileImageData" value={profileImage} />
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-x-6">
                     <div className="col-span-12 sm:col-span-6">
                         <div className="mb-5">

@@ -6,18 +6,31 @@ import { Label } from "@/components/ui/label";
 import DefaultUploadedImage from "@/public/assets/images/user-grid/user-grid-img13.png";
 import { Camera } from "lucide-react";
 import { StaticImageData } from "next/image";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-const AvatarUpload = () => {
-    const [imagePreview, setImagePreview] = useState<string | StaticImageData>(DefaultUploadedImage);
+type AvatarUploadProps = {
+    initialImage?: string | null;
+    onImageChange?: (value: string) => void;
+};
+
+const AvatarUpload = ({ initialImage, onImageChange }: AvatarUploadProps) => {
+    const [imagePreview, setImagePreview] = useState<string | StaticImageData>(
+        initialImage || DefaultUploadedImage
+    );
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        setImagePreview(initialImage || DefaultUploadedImage);
+    }, [initialImage]);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setImagePreview(reader.result as string);
+                const result = reader.result as string;
+                setImagePreview(result);
+                onImageChange?.(result);
             };
             reader.readAsDataURL(file);
         }
