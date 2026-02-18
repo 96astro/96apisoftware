@@ -95,6 +95,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           profileCard: {
             plan: astroReport.plan ?? "BASIC PLAN",
             phone: astroReport.phone ?? "-",
+            editUrl: "/view-profile?tab=editProfile",
           },
         };
       }

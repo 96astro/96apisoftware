@@ -1,0 +1,1 @@
+-- No-op migration. Superseded by 20260218222000_add_subscription_plan_table.

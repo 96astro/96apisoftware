@@ -12,6 +12,7 @@ export async function registerUser(formData: FormData): Promise<
     const username = formData.get("username")?.toString() ?? "";
     const name = formData.get("name")?.toString() ?? "";
     const email = formData.get("email")?.toString() ?? "";
+    const countryCode = formData.get("countryCode")?.toString() ?? "";
     const phone = formData.get("phone")?.toString() ?? "";
     const password = formData.get("password")?.toString() ?? "";
     const acceptTerms = formData.get("acceptTerms") === "on";
@@ -20,6 +21,7 @@ export async function registerUser(formData: FormData): Promise<
       username,
       name,
       email,
+      countryCode,
       phone,
       password,
       acceptTerms,
@@ -36,6 +38,7 @@ export async function registerUser(formData: FormData): Promise<
       username: result.data.username,
       name: result.data.name,
       email: result.data.email,
+      countryCode: result.data.countryCode,
       phone: result.data.phone,
       password: result.data.password,
     });

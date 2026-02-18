@@ -2,6 +2,7 @@
 type ProfileData = {
     name: string;
     email: string;
+    phoneCountryCode: string;
     phone: string;
     department: string;
     designation: string;
@@ -32,7 +33,7 @@ const ViewProfileSidebar = ({ profile }: { profile: ProfileData }) => {
                         </li>
                         <li className="flex items-center gap-1 mb-3">
                             <span className="w-[30%] text-base font-semibold text-neutral-600 dark:text-neutral-200"> Phone Number</span>
-                            <span className="w-[70%] text-neutral-500 dark:text-neutral-300 font-medium">: {profile.phone || "N/A"}</span>
+                            <span className="w-[70%] text-neutral-500 dark:text-neutral-300 font-medium">: {profile.phone ? `${profile.phoneCountryCode} ${profile.phone}` : "N/A"}</span>
                         </li>
                         <li className="flex items-center gap-1 mb-3">
                             <span className="w-[30%] text-base font-semibold text-neutral-600 dark:text-neutral-200"> Department</span>

@@ -30,6 +30,10 @@ export const registerSchema = loginSchema.extend({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters.",
   }),
+  countryCode: z
+    .string()
+    .min(2, { message: "Country code is required." })
+    .regex(/^\+\d{1,4}$/, { message: "Invalid country code." }),
   phone: z
     .string()
     .min(10, { message: "Phone number must be at least 10 digits." })

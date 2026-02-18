@@ -88,6 +88,7 @@ export async function createUser(input: {
   username: string;
   name: string;
   email: string;
+  countryCode: string;
   phone: string;
   password: string;
 }): Promise<{ user: { id: number } } | { error: string }> {
@@ -116,8 +117,9 @@ export async function createUser(input: {
       username: input.username,
       name: input.name,
       email: input.email,
+      phoneCountryCode: input.countryCode,
       phone: input.phone,
-      plan: "Basic Plan",
+      subscriptionPlanId: 1,
       password: passwordHash,
     },
   });

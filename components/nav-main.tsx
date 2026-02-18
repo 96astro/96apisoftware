@@ -19,9 +19,10 @@ import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ChevronRight, Pencil, Power, Share2, type LucideIcon } from "lucide-react";
+import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface SidebarItem {
   title?: string;
@@ -32,6 +33,7 @@ interface SidebarItem {
   profileCard?: {
     plan: string;
     phone: string;
+    editUrl?: string;
   };
   items?: {
     title: string;
@@ -46,9 +48,31 @@ export function NavMain({ items }: { items: SidebarItem[] }) {
   const isCollapsed = useSidebarCollapsed();
   const [openGroup, setOpenGroup] = useState<string | null>(null);
 
+  const activeGroupTitle = useMemo(() => {
+    const activeGroup = items.find(
+      (item) =>
+        item.title &&
+        item.items?.some(
+          (subItem) =>
+            pathname === subItem.url || pathname.startsWith(subItem.url)
+        )
+    );
+    return activeGroup?.title ?? null;
+  }, [items, pathname]);
+
+  useEffect(() => {
+    if (!openGroup && activeGroupTitle) {
+      setOpenGroup(activeGroupTitle);
+    }
+  }, [activeGroupTitle, openGroup]);
+
   const handleToggleGroup = (title?: string) => {
     if (!title) return;
     setOpenGroup((prev) => (prev === title ? null : title));
+  };
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/auth/login" });
   };
 
   return (
@@ -61,7 +85,7 @@ export function NavMain({ items }: { items: SidebarItem[] }) {
           );
 
           if ((item.items && item.items.length > 0) || (item.details && item.details.length > 0) || item.profileCard) {
-            const isOpen = openGroup === item.title || isGroupActive;
+            const isOpen = openGroup === item.title;
 
             return (
               <Collapsible
@@ -145,9 +169,13 @@ export function NavMain({ items }: { items: SidebarItem[] }) {
                           <span>{item.profileCard.phone}</span>
                         </div>
                         <div className="flex items-center justify-center gap-6 text-[#4b5563] dark:text-white">
-                          <Pencil className="size-4" />
+                          <Link href={item.profileCard.editUrl ?? "/view-profile?tab=editProfile"}>
+                            <Pencil className="size-4" />
+                          </Link>
                           <Share2 className="size-4" />
-                          <Power className="size-4" />
+                          <button type="button" onClick={handleLogout} className="cursor-pointer">
+                            <Power className="size-4" />
+                          </button>
                         </div>
                       </div>
                     ) : null}

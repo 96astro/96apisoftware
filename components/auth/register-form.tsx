@@ -16,10 +16,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Loader2, Lock, Mail, Phone, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
+
+const CountryCodeCombobox = dynamic(
+  () => import("../shared/country-code-combobox"),
+  { ssr: false }
+);
 // import SocialLogin from "./social-login";
 import { registerUser } from "./actions/register";
 
@@ -35,6 +41,7 @@ const RegisterForm = () => {
       username: "",
       name: "",
       email: "",
+      countryCode: "+91",
       phone: "",
       password: "",
     },
@@ -51,6 +58,7 @@ const RegisterForm = () => {
       formData.append("username", values.username);
       formData.append("name", values.name);
       formData.append("email", values.email);
+      formData.append("countryCode", values.countryCode);
       formData.append("phone", values.phone);
       formData.append("password", values.password);
       formData.append("acceptTerms", values.acceptTerms ? "on" : "off");
@@ -141,6 +149,24 @@ const RegisterForm = () => {
                       disabled={loading}
                     />
                   </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="countryCode"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <CountryCodeCombobox
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={loading}
+                    className="h-14 rounded-xl bg-neutral-100 dark:bg-slate-800 border-neutral-300 dark:border-slate-700"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

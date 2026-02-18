@@ -1,0 +1,2 @@
+ALTER TABLE `user`
+MODIFY `subscriptionPlanId` INTEGER NOT NULL DEFAULT 1;

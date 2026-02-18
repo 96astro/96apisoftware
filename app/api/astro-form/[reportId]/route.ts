@@ -44,8 +44,13 @@ export async function GET(_: Request, context: RouteContext) {
       longitudeDir: true,
       user: {
         select: {
+          phoneCountryCode: true,
           phone: true,
-          plan: true,
+          subscriptionPlan: {
+            select: {
+              name: true,
+            },
+          },
         },
       },
       responseRaw: true,
@@ -70,8 +75,10 @@ export async function GET(_: Request, context: RouteContext) {
       longitudeDeg: report.longitudeDeg,
       longitudeMin: report.longitudeMin,
       longitudeDir: report.longitudeDir,
-      phone: report.user?.phone ?? null,
-      plan: report.user?.plan ?? "Basic Plan",
+      phone: report.user?.phone
+        ? `${report.user?.phoneCountryCode ?? ""} ${report.user.phone}`.trim()
+        : null,
+      plan: report.user?.subscriptionPlan?.name ?? "Basic Plan",
     },
     data: parseResponse(report.responseRaw, report.responseJson),
   });
