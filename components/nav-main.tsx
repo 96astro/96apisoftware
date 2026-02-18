@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/sidebar";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 import { cn } from "@/lib/utils";
-import { ChevronRight, type LucideIcon } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ChevronRight, Pencil, Power, Share2, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -27,10 +28,15 @@ interface SidebarItem {
   url?: string;
   icon?: LucideIcon;
   isActive?: boolean;
+  details?: string[];
+  profileCard?: {
+    plan: string;
+    phone: string;
+  };
   items?: {
     title: string;
     url: string;
-    circleColor: string;
+    circleColor?: string;
   }[];
   label?: string;
 };
@@ -54,7 +60,7 @@ export function NavMain({ items }: { items: SidebarItem[] }) {
               pathname === subItem.url || pathname.startsWith(subItem.url)
           );
 
-          if (item.items && item.items.length > 0) {
+          if ((item.items && item.items.length > 0) || (item.details && item.details.length > 0) || item.profileCard) {
             const isOpen = openGroup === item.title || isGroupActive;
 
             return (
@@ -82,36 +88,69 @@ export function NavMain({ items }: { items: SidebarItem[] }) {
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
-                    <SidebarMenuSub className="gap-0 mt-2 space-y-1">
-                      {item.items.map((subItem) => {
-                        const isSubActive =
-                          pathname === subItem.url ||
-                          pathname.startsWith(subItem.url);
-                        return (
-                          <SidebarMenuSubItem key={subItem.title}>
-                            <SidebarMenuSubButton
-                              asChild
-                              className={cn(
-                                "py-5.5 px-3 text-base text-[#4b5563] dark:text-white hover:bg-primary/10 active:bg-primary/10 dark:hover:bg-slate-700",
-                                isSubActive
-                                  ? "bg-primary/10 font-bold dark:bg-slate-600"
-                                  : ""
-                              )}
-                            >
-                              <Link
-                                href={subItem.url}
-                                className="flex items-center gap-3.5"
+                    {item.items && item.items.length > 0 ? (
+                      <SidebarMenuSub className="gap-0 mt-2 space-y-1">
+                        {item.items.map((subItem) => {
+                          const isSubActive =
+                            pathname === subItem.url ||
+                            pathname.startsWith(subItem.url);
+                          return (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton
+                                asChild
+                                className={cn(
+                                  "py-5.5 px-3 text-base text-[#4b5563] dark:text-white hover:bg-primary/10 active:bg-primary/10 dark:hover:bg-slate-700",
+                                  isSubActive
+                                    ? "bg-primary/10 font-bold dark:bg-slate-600"
+                                    : ""
+                                )}
                               >
-                                <span
-                                  className={`w-2 h-2 rounded-[50%] ${subItem.circleColor}`}
-                                ></span>
-                                <span>{subItem.title}</span>
-                              </Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        );
-                      })}
-                    </SidebarMenuSub>
+                                <Link
+                                  href={subItem.url}
+                                  className="flex items-center gap-3.5"
+                                >
+                                  {subItem.circleColor ? (
+                                    <span
+                                      className={`w-2 h-2 rounded-[50%] ${subItem.circleColor}`}
+                                    ></span>
+                                  ) : (
+                                    <ChevronRight className="size-4" />
+                                  )}
+                                  <span>{subItem.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          );
+                        })}
+                      </SidebarMenuSub>
+                    ) : null}
+                    {item.details && item.details.length > 0 ? (
+                      <div className="px-3 py-2 space-y-1.5 text-sm text-[#4b5563] dark:text-white">
+                        {item.details.map((detail) => (
+                          <p key={detail}>{detail}</p>
+                        ))}
+                      </div>
+                    ) : null}
+                    {item.profileCard ? (
+                      <div className="px-3 py-3">
+                        <div className="mb-3 flex justify-center">
+                          <Avatar className="size-16">
+                            <AvatarFallback className="bg-primary/20 text-primary">
+                              {item.profileCard.plan?.slice(0, 1) || "B"}
+                            </AvatarFallback>
+                          </Avatar>
+                        </div>
+                        <div className="mb-4 flex items-center justify-between text-sm font-semibold text-[#4b5563] dark:text-white">
+                          <span>{item.profileCard.plan}</span>
+                          <span>{item.profileCard.phone}</span>
+                        </div>
+                        <div className="flex items-center justify-center gap-6 text-[#4b5563] dark:text-white">
+                          <Pencil className="size-4" />
+                          <Share2 className="size-4" />
+                          <Power className="size-4" />
+                        </div>
+                      </div>
+                    ) : null}
                   </CollapsibleContent>
                 </SidebarMenuItem>
               </Collapsible>

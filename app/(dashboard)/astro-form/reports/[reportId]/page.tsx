@@ -1436,7 +1436,7 @@ const AstroFormReportPage = async ({ params }: PageProps) => {
       </div>
 
       <div className="space-y-6">
-        <Card className="card">
+          <Card className="card">
           <CardHeader>
             <div className="rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-white">
               <CardTitle className="text-white">Astro Data Overview</CardTitle>

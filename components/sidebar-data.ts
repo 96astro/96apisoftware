@@ -382,3 +382,129 @@ export const data = {
     },
   ],
 };
+
+export const astroReportData = {
+  navMain: [
+    {
+      label: "Astro Report",
+    },
+    {
+      title: "User Detail",
+      url: "#",
+      icon: UsersRound,
+    },
+    {
+      title: "Profile",
+      url: "#",
+      icon: UsersRound,
+    },
+    {
+      title: "File",
+      url: "#",
+      icon: StickyNote,
+      items: [
+        {
+          title: "New Chart",
+          url: "#",
+        },
+        {
+          title: "Open Chart",
+          url: "#",
+        },
+        {
+          title: "Save Chart",
+          url: "#",
+        },
+        {
+          title: "Save and share",
+          url: "#",
+        },
+        {
+          title: "Print",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Edit",
+      url: "#",
+      icon: Settings,
+      items: [
+        {
+          title: "Edit Chart",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Vedic",
+      url: "#",
+      icon: ChartPie,
+    },
+    {
+      title: "Gemini",
+      url: "#",
+      icon: Component,
+    },
+    {
+      title: "KP",
+      url: "#",
+      icon: Server,
+    },
+    {
+      title: "Laal Kitab",
+      url: "#",
+      icon: ShieldCheck,
+    },
+    {
+      title: "BNN",
+      url: "#",
+      icon: Boxes,
+    },
+    {
+      title: "Dasha",
+      url: "#",
+      icon: CalendarDays,
+    },
+    {
+      title: "Life calculator",
+      url: "#",
+      icon: Calculator,
+    },
+    {
+      title: "Ayu Milan",
+      url: "#",
+      icon: HeartHandshake,
+    },
+    {
+      title: "Match Horoscope",
+      url: "#",
+      icon: HeartHandshake,
+    },
+    {
+      title: "Numerlogy",
+      url: "#",
+      icon: Component,
+    },
+    {
+      title: "Prediction and Reports",
+      url: "#",
+      icon: Mail,
+    },
+    {
+      title: "Chart Style",
+      url: "#",
+      icon: ChartPie,
+    },
+    {
+      title: "Print Report",
+      url: "#",
+      icon: StickyNote,
+    },
+    {
+      title: "Report Issue",
+      url: "#",
+      icon: Settings,
+    },
+  ],
+};

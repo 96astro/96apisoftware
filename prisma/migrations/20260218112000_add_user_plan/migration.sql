@@ -1,0 +1,3 @@
+ALTER TABLE `user`
+ADD COLUMN `plan` VARCHAR(191) NOT NULL DEFAULT 'Basic Plan';
+

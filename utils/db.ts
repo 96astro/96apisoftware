@@ -117,6 +117,7 @@ export async function createUser(input: {
       name: input.name,
       email: input.email,
       phone: input.phone,
+      plan: "Basic Plan",
       password: passwordHash,
     },
   });

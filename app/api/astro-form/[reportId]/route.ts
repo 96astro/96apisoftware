@@ -31,6 +31,23 @@ export async function GET(_: Request, context: RouteContext) {
   const report = await prisma.astroFormReport.findFirst({
     where: { id: reportId, userId: session.user.id },
     select: {
+      id: true,
+      name: true,
+      birthDate: true,
+      birthTime: true,
+      placeOfBirth: true,
+      latitudeDeg: true,
+      latitudeMin: true,
+      latitudeDir: true,
+      longitudeDeg: true,
+      longitudeMin: true,
+      longitudeDir: true,
+      user: {
+        select: {
+          phone: true,
+          plan: true,
+        },
+      },
       responseRaw: true,
       responseJson: true,
     },
@@ -41,6 +58,21 @@ export async function GET(_: Request, context: RouteContext) {
   }
 
   return NextResponse.json({
+    report: {
+      id: report.id,
+      name: report.name,
+      birthDate: report.birthDate,
+      birthTime: report.birthTime,
+      placeOfBirth: report.placeOfBirth,
+      latitudeDeg: report.latitudeDeg,
+      latitudeMin: report.latitudeMin,
+      latitudeDir: report.latitudeDir,
+      longitudeDeg: report.longitudeDeg,
+      longitudeMin: report.longitudeMin,
+      longitudeDir: report.longitudeDir,
+      phone: report.user?.phone ?? null,
+      plan: report.user?.plan ?? "Basic Plan",
+    },
     data: parseResponse(report.responseRaw, report.responseJson),
   });
 }
