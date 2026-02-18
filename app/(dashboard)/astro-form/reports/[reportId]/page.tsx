@@ -16,7 +16,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import ReportTabs from "./components/report-tabs";
-import type { ReportTabRow, ReportTabsSections } from "./components/report-tabs";
 
 export const metadata: Metadata = {
   title: "Astro Form Report | WowDash Admin Dashboard",
@@ -29,6 +28,7 @@ type PageProps = {
 
 type DataMap = Record<string, unknown>;
 type DataRow = Record<string, string | number | null | undefined>;
+type ReportTabRow = Record<string, string | number | null | undefined>;
 
 const PLANET_ORDER = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
 const TABLE_HEAD_BG = "bg-primary text-primary-foreground";
@@ -1252,6 +1252,57 @@ function buildKpSections(chart: DataMap, title: string): Array<{ title: string; 
   ];
 }
 
+export function buildTabSections(chart: DataMap, tabKey: string): Array<{ title: string; rows: ReportTabRow[] }> {
+  switch (tabKey) {
+    case "vimshottari-dasha":
+      return buildVimshottariSections(chart);
+    case "ashtakavarga":
+      return buildAshtakavargaSections(chart);
+    case "yogini-dasha":
+      return buildYoginiSections(chart);
+    case "chara-dasha":
+      return buildCharaDashaSections(chart);
+    case "sthira-dasha":
+      return buildSthiraDashaSections(chart);
+    case "niryana-shoola-dasha":
+      return buildNiryanaShoolaSections(chart);
+    case "thrikona-dasha":
+      return buildThrikonaSections(chart);
+    case "ashtottari-dasha":
+      return buildAshtottariSections(chart);
+    case "mudda-dasha":
+      return buildMuddaSections(chart);
+    case "upagraha":
+      return buildUpagrahaSections(chart);
+    case "charts":
+      return buildChartsSections(chart);
+    case "kundli-karak-details":
+      return buildKundliKarakSections(chart);
+    case "chalit-details":
+      return buildChalitSections(chart);
+    case "chandra-kundli-details":
+      return buildChandraKundliSections(chart);
+    case "avakhada-chakra-details":
+      return buildAvakhadaSections(chart);
+    case "chara-karkamsha-swamsha":
+      return buildCharaKarkamshaSections(chart);
+    case "drekkana":
+      return buildDrekkanaSections(chart);
+    case "varsha-phal":
+      return buildVarshaPhalSections(chart);
+    case "lagna-saham":
+      return buildLagnaSahamSections(chart);
+    case "sade-sati":
+      return buildSadeSatiSections(chart);
+    case "kp-page":
+      return buildKpSections(chart, "KP Page");
+    case "kp-horary-page":
+      return buildKpSections(chart, "KP Horary");
+    default:
+      return [];
+  }
+}
+
 const DataTable = ({
   title,
   rows,
@@ -1370,30 +1421,6 @@ const AstroFormReportPage = async ({ params }: PageProps) => {
     asObject(chart.get_full_planet_positions)
   );
   const bhavaDegreeRows = buildBhavaDegreeRows(asArray(chart.bhavbal_data), asArray(chart.chalit));
-  const tabSections: ReportTabsSections = {
-    "vimshottari-dasha": buildVimshottariSections(chart),
-    ashtakavarga: buildAshtakavargaSections(chart),
-    "yogini-dasha": buildYoginiSections(chart),
-    "chara-dasha": buildCharaDashaSections(chart),
-    "sthira-dasha": buildSthiraDashaSections(chart),
-    "niryana-shoola-dasha": buildNiryanaShoolaSections(chart),
-    "thrikona-dasha": buildThrikonaSections(chart),
-    "ashtottari-dasha": buildAshtottariSections(chart),
-    "mudda-dasha": buildMuddaSections(chart),
-    upagraha: buildUpagrahaSections(chart),
-    charts: buildChartsSections(chart),
-    "kundli-karak-details": buildKundliKarakSections(chart),
-    "chalit-details": buildChalitSections(chart),
-    "chandra-kundli-details": buildChandraKundliSections(chart),
-    "avakhada-chakra-details": buildAvakhadaSections(chart),
-    "chara-karkamsha-swamsha": buildCharaKarkamshaSections(chart),
-    drekkana: buildDrekkanaSections(chart),
-    "varsha-phal": buildVarshaPhalSections(chart),
-    "lagna-saham": buildLagnaSahamSections(chart),
-    "sade-sati": buildSadeSatiSections(chart),
-    "kp-page": buildKpSections(chart, "KP Page"),
-    "kp-horary-page": buildKpSections(chart, "KP Horary"),
-  };
 
   return (
     <>
@@ -1551,7 +1578,7 @@ const AstroFormReportPage = async ({ params }: PageProps) => {
           </Card>
         ) : null}
         <DataTable title="Bhava Degrees Table" rows={bhavaDegreeRows} greenHead />
-        <ReportTabs sections={tabSections} />
+        <ReportTabs reportId={report.id} />
       </div>
     </>
   );
